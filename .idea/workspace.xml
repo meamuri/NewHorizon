@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a27a1225-3836-4ff1-b98f-9511b0d565e5" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/HorizonQuiz/urls.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/HorizonBackEnd/urls.py" afterPath="$PROJECT_DIR$/HorizonBackEnd/urls.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/HorizonBackEnd/settings.py" afterPath="$PROJECT_DIR$/HorizonBackEnd/settings.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/HorizonQuiz/models.py" afterPath="$PROJECT_DIR$/HorizonQuiz/models.py" />
     </list>
     <ignored path="HorizonBackEnd.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -50,7 +49,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="urls.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="urls.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/HorizonBackEnd/urls.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="272">
@@ -58,6 +57,28 @@
               <folding>
                 <element signature="e#648#689#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="models.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/HorizonQuiz/models.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="323">
+              <caret line="19" column="24" selection-start-line="19" selection-start-column="24" selection-end-line="19" selection-end-column="24" />
+              <folding>
+                <element signature="e#0#28#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="settings.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/HorizonBackEnd/settings.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="204">
+              <caret line="33" column="31" selection-start-line="33" selection-start-column="31" selection-end-line="33" selection-end-column="31" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -80,6 +101,8 @@
         <option value="$PROJECT_DIR$/HorizonQuiz/views.py" />
         <option value="$PROJECT_DIR$/HorizonQuiz/urls.py" />
         <option value="$PROJECT_DIR$/HorizonBackEnd/urls.py" />
+        <option value="$PROJECT_DIR$/HorizonQuiz/models.py" />
+        <option value="$PROJECT_DIR$/HorizonBackEnd/settings.py" />
       </list>
     </option>
   </component>
@@ -90,8 +113,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="8" />
-    <option name="y" value="369" />
+    <option name="x" value="-55" />
+    <option name="y" value="321" />
     <option name="width" value="1284" />
     <option name="height" value="843" />
   </component>
@@ -446,7 +469,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="8" y="369" width="1284" height="843" extended-state="0" />
+    <frame x="-55" y="321" width="1284" height="843" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -513,6 +536,24 @@
           <folding>
             <element signature="e#648#689#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/HorizonQuiz/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="323">
+          <caret line="19" column="24" selection-start-line="19" selection-start-column="24" selection-end-line="19" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/HorizonBackEnd/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="33" column="31" selection-start-line="33" selection-start-column="31" selection-end-line="33" selection-end-column="31" />
+          <folding />
         </state>
       </provider>
     </entry>
