@@ -1,16 +1,8 @@
-from django.http import JsonResponse
+from HorizonQuiz.models import Question
+import random
 
 
 def index(request):
-    return JsonResponse({
-        'image': "some url",
-        'text': "what's up?",
-        'answers': [
-            "ans1",
-            "ans2",
-            "ans3",
-            "ans4"
-        ]
-    })
+    return random.choice(Question.objects.all()).to_json()
 
 # Create your views here.
