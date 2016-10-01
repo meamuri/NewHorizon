@@ -1,5 +1,4 @@
 from django.db import models
-from django.http import JsonResponse
 
 
 class Question(models.Model):
@@ -15,14 +14,9 @@ class Question(models.Model):
         return self.question_text
 
     def to_json(self):
-        return JsonResponse({
-            'id': self.id,
-            'image': self.image_url,
-            'text': self.question_text,
-            'answers': [
-                self.answer_1,
-                self.answer_2,
-                self.answer_3,
-                self.answer_4
-            ]
-        })
+        return str(dict(id=self.id, image=self.image_url, text=self.question_text, answers=[
+            self.answer_1,
+            self.answer_2,
+            self.answer_3,
+            self.answer_4
+        ]))
