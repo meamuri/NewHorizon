@@ -4,8 +4,8 @@ import random
 
 
 def index(request):
-    json_string = random.choice(Question.objects.all()).to_json()
-    return HttpResponse(json_string)
+    data = random.choice(Question.objects.all()).to_json()
+    return HttpResponse(str(data), content_type="application/json; charset=utf-8")
 
 
 def get_answer(request, question_id):
