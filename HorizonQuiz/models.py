@@ -9,12 +9,14 @@ class Question(models.Model):
     answer_2 = models.CharField(max_length=128)
     answer_3 = models.CharField(max_length=128)
     answer_4 = models.CharField(max_length=128)
+    true_answer = models.IntegerField(default=1)
 
     def __str__(self):
         return self.question_text
 
     def to_json(self):
         return JsonResponse({
+            'id': self.id,
             'image': self.image_url,
             'text': self.question_text,
             'answers': [
