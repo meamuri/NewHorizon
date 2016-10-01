@@ -9,4 +9,9 @@ def index(request):
 
 
 def get_answer(request, question_id):
-    return HttpResponse(str(Question.objects.get(pk=question_id).true_answer))
+    try:
+        obj = Question.objects.get(pk=question_id)
+    except (KeyError, Question.DoesNotExist):
+        return HttpResponse(str(-1))
+    else:
+        return HttpResponse(str(obj.true_answer))
