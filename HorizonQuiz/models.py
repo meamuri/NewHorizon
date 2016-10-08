@@ -13,10 +13,10 @@ class Question(models.Model):
     def __str__(self):
         return self.question_text
 
-    def to_json(self):
-        return str(dict(id=self.id, image=self.image_url, text=self.question_text, answers=[
+    def serialize(self):
+        return dict(id=self.id, image=self.image_url, text=self.question_text, answers=[
             self.answer_1,
             self.answer_2,
             self.answer_3,
             self.answer_4
-        ]))
+        ])
