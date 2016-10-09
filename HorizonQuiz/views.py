@@ -4,8 +4,18 @@ import random
 
 
 def index(request):
-    data = random.choice(Question.objects.all()).serialize()
-    return JsonResponse(data)  # HttpResponse(str(data), content_type="application/json; charset=utf-8")
+    if request.session.get('QuestionIssued', False):
+        quest_by_id = Question.objects.get(pk=request.session['quest_id'])
+        del request.session['QuestionIssued']
+        del request.session['quest_id']
+        return JsonResponse({
+            'correct': quest_by_id.true_answer
+        })
+    else:
+        data = random.choice(Question.objects.all()).serialize()
+        request.session['QuestionIssued'] = True
+        request.session['quest_id'] = data['id']
+        return JsonResponse(data)  # HttpResponse(str(data), content_type="application/json; charset=utf-8")
 
 
 def get_answer(request, question_id):
