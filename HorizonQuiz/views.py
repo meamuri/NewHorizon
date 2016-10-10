@@ -4,24 +4,31 @@ import random
 
 
 def index(request):
-    if request.session.get('QuestionIssued', False):
-        quest_by_id = Question.objects.get(pk=request.session['quest_id'])
-        del request.session['QuestionIssued']
+    if 'session_status' in request.session and request.session['session_status'] == 'we_know_answer':
+        res = JsonResponse({'correct': request.session['true_answer']})
+        del request.session['session_status']
+        del request.session['true_answer']
         del request.session['quest_id']
-        return JsonResponse({
-            'correct': quest_by_id.true_answer
-        })
+        return res
+    elif 'session_status' in request.session and request.session['session_status'] == 'we_get_question':
+        del request.session['session_status']
+        del request.session['true_answer']
+        del request.session['quest_id']
+        return JsonResponse({'correct': -1})
     else:
-        data = random.choice(Question.objects.all()).serialize()
-        request.session['QuestionIssued'] = True
-        request.session['quest_id'] = data['id']
-        return JsonResponse(data)  # HttpResponse(str(data), content_type="application/json; charset=utf-8")
+        data = random.choice(Question.objects.all())
+        request.session['session_status'] = 'we_get_question'
+        request.session['true_answer'] = data.true_answer
+        request.session['quest_id'] = data.id
+        return JsonResponse(data.serialize())
 
 
-def get_answer(request, question_id):
-    try:
-        quest_by_id = Question.objects.get(pk=question_id)
-    except (KeyError, Question.DoesNotExist):
-        return JsonResponse({'correct': -1})  # str(-1), content_type="application/json; charset=utf-8")
-    else:
-        return JsonResponse({'correct': quest_by_id.true_answer})
+def get_answer(request, user_answer):
+    if 'session_status' in request.session and request.session['session_status'] == 'we_get_question':
+        if user_answer == request.session['true_answer'] == user_answer:
+            request.session['true_answer'] = 'true'
+        else:
+            request.session['true_answer'] = 'false'
+        request.session['session_status'] = 'we_know_answer'
+        return JsonResponse({'answer': 'checked'})
+    return JsonResponse({'correct': 'not in time'})
