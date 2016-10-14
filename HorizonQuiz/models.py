@@ -20,3 +20,18 @@ class Question(models.Model):
             self.answer_3,
             self.answer_4
         ])
+
+
+class AccuracyQuestion(models.Model):
+    image_url = models.CharField(max_length=256)
+    question_text = models.CharField(max_length=256)
+    true_answer = models.IntegerField(default=1)
+
+    def __str__(self):
+        return self.question_text
+
+    def serialize(self):
+        return dict(id=self.id, image=self.image_url, text=self.question_text)
+
+    def check_delta(self, num):
+        return abs(self.true_answer - int(num))
