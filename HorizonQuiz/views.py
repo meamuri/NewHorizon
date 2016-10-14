@@ -5,11 +5,23 @@ import random
 
 def index(request):
     if 'session_status' in request.session and request.session['session_status'] == 'we_know_answer':
-        res = JsonResponse({'correct': request.session['true_answer']})
+
+        if 'score' not in request.session:
+            request.session['score'] = 0
+        elif request.session['true_answer'] == 'true':
+            request.session['score'] += 1
+
+        res = JsonResponse({
+            'correct': request.session['true_answer'],
+            'score': request.session['score']
+        })
+
         del request.session['session_status']
         del request.session['true_answer']
         del request.session['quest_id']
+
         return res
+
     elif 'session_status' in request.session and request.session['session_status'] == 'we_get_question':
         del request.session['session_status']
         del request.session['true_answer']
@@ -48,8 +60,16 @@ def get_accuracy_question(request):
 
 def check_accuracy_answer(request, digit_of_answer):
     if 'session_status' in request.session and request.session['session_status'] == 'get_accuracy_question':
+        delta = AccuracyQuestion.objects.get(pk=request.session['quest_id']).check_delta(digit_of_answer)
+
+        if 'score' not in request.session:
+            request.session['score'] = 0
+        elif delta == 0:
+            request.session['score'] += 1
+
         res = JsonResponse({
-            'answer': AccuracyQuestion.objects.get(pk=request.session['quest_id']).check_delta(digit_of_answer)
+            'answer': delta,
+            'score': request.session['score']
         })
         del request.session['session_status']
         del request.session['quest_id']
