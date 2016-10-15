@@ -4,46 +4,44 @@ import random
 
 
 def index(request):
-    if 'session_status' in request.session and request.session['session_status'] == 'we_know_answer':
-
-        if 'score' not in request.session:
-            request.session['score'] = 0
-        elif request.session['true_answer'] == 'true':
-            request.session['score'] += 1
-
-        res = JsonResponse({
-            'correct': request.session['true_answer'],
-            'score': request.session['score']
-        })
-
-        del request.session['session_status']
-        del request.session['true_answer']
-        del request.session['quest_id']
-
-        return res
-
-    elif 'session_status' in request.session and request.session['session_status'] == 'we_get_question':
-        del request.session['session_status']
-        del request.session['true_answer']
-        del request.session['quest_id']
-        return JsonResponse({'correct': -1})
-    else:
+    if 'session_status' not in request.session or request.session['session_status'] != 'we_get_question':
         data = random.choice(Question.objects.all())
         request.session['session_status'] = 'we_get_question'
         request.session['true_answer'] = data.true_answer
-        request.session['quest_id'] = data.id
         return JsonResponse(data.serialize())
+
+    # if request.session['session_status'] == 'we_get_question':
+    del request.session['session_status']
+    del request.session['true_answer']
+    return JsonResponse({'correct': -1})
 
 
 def get_answer(request, user_answer):
-    if 'session_status' in request.session and request.session['session_status'] == 'we_get_question':
-        if user_answer == request.session['true_answer']:
-            request.session['true_answer'] = 'true'
-        else:
-            request.session['true_answer'] = 'false'
-        request.session['session_status'] = 'we_know_answer'
-        return JsonResponse({'answer': 'checked'})
-    return JsonResponse({'correct': 'not in time'})
+    if 'session_status' not in request.session:
+        return JsonResponse({'correct': 'not in session'})
+
+    if request.session['session_status'] != 'we_get_question':
+        del request.session['session_status']
+        del request.session['true_answer']
+        return JsonResponse({
+            'correct': 'not in time',
+            'status is': request.session['session_status']
+        })
+
+    if 'score' not in request.session:
+        request.session['score'] = 0
+
+    if request.session['true_answer'] == int(user_answer):
+        request.session['score'] += 1
+
+    res = JsonResponse({
+        'correct': request.session['true_answer'],
+        'score': request.session['score']
+    })
+
+    del request.session['session_status']
+    del request.session['true_answer']
+    return res
 
 
 def get_accuracy_question(request):
