@@ -2,7 +2,7 @@ from HorizonQuiz.models import Question, AccuracyQuestion
 from .my_unit import views_unit
 
 
-def index(request):
+def get_question(request):
     return views_unit.user_want_question(request, 'we_get_question', Question)
 
 

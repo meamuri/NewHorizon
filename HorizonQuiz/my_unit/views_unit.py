@@ -28,4 +28,3 @@ def user_want_question(request, session_text, q_type):
     request.session['session_status'] = session_text
     request.session['correct_answer'] = data.true_answer
     return JsonResponse(data.serialize())
-
