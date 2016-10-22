@@ -26,7 +26,7 @@ class Region(models.Model):
         return self.area.split('--')
 
     def __str__(self):
-        return self.url + str(self.x) + str(self.y)
+        return self.url + " x: " + str(self.x) + " y: " + str(self.y)
 
     def sizes(self):
         return str(self.width) + ';' + str(self.height)
