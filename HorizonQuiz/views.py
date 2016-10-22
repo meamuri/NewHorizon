@@ -6,16 +6,16 @@ from HorizonQuiz.my_unit import game_logic
 import uuid
 
 
-def get_question(request):
-    return views_unit.user_want_question(request, views_unit.WE_GET_QUESTION, Question)
+def get_enum_question(request):
+    return views_unit.user_want_question(request, views_unit.WE_GET_ENUM_QUESTION, Question)
 
 
 def get_accuracy_question(request):
     return views_unit.user_want_question(request, views_unit.WE_GET_ACCURACY_QUESTION, AccuracyQuestion)
 
 
-def get_answer(request, user_answer):
-    return views_unit.user_want_take_answer(request, views_unit.WE_GET_QUESTION, int(user_answer))
+def get_enum_answer(request, user_answer):
+    return views_unit.user_want_take_answer(request, views_unit.WE_GET_ENUM_QUESTION, int(user_answer))
 
 
 def get_accuracy_answer(request, digit_of_answer):

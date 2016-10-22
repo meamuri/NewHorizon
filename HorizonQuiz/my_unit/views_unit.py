@@ -2,7 +2,7 @@ from django.http import JsonResponse
 import random
 
 
-WE_GET_QUESTION = 'we_get_question'
+WE_GET_ENUM_QUESTION = 'we_get_enum_question'
 WE_GET_ACCURACY_QUESTION = 'we_get_accuracy_question'
 
 
@@ -38,7 +38,7 @@ def user_want_take_answer(request, session_text, value):
     check_session_status(request, session_text)
     delta = request.session['correct_answer'] - value
     check_and_inc_score(request, delta)
-    if session_text == WE_GET_QUESTION:
+    if session_text == WE_GET_ENUM_QUESTION:
         return clear_and_answer(request, {'correct': request.session['correct_answer']})
     else:
         return clear_and_answer(request, {'delta': delta})
