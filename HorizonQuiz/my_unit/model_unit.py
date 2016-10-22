@@ -20,6 +20,8 @@ class Region(models.Model):
     height = models.IntegerField(default=0)
     area = models.CharField(max_length=1024)
 
+    map = models.ForeignKey(Map, default=1)
+
     def get_collection_of_area_as_strings(self):
         return self.area.split('--')
 
