@@ -27,8 +27,10 @@ class Region(models.Model):
     def __str__(self):
         return self.url + " x: " + str(self.x) + " y: " + str(self.y)
 
-    def sizes(self):
-        return str(self.width) + ';' + str(self.height)
+    def sizes(self, screen_width=1, screen_height=1):
+        return {"width": self.width*screen_width/100, "height": self.height*screen_height/100}
+        # return str(self.width) + ';' + str(self.height)
 
-    def position(self):
-        return str(self.x) + ';' + str(self.y)
+    def position(self, screen_width=1, screen_height=1):
+        return {"x": self.x*screen_width/100, "y": self.y*screen_height/100}
+        # return str(self.x) + ';' + str(self.y)

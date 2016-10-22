@@ -29,9 +29,10 @@ def get_play_map(reqeust, width=1, height=1):
     lst_urls = []
     for a in Region.objects.all():
         lst_areas.append(a.get_collection_of_area_as_strings())
-        lst_pos.append(a.position())
-        lst_sizes.append(a.sizes())
+        lst_pos.append(a.position(int(width), int(height)))
+        lst_sizes.append(a.sizes(int(width), int(height)))
         lst_urls.append(a.url)
+
     return JsonResponse({
         'bg-image': 'some-url',
         'region-images': lst_urls,
@@ -43,7 +44,6 @@ def get_play_map(reqeust, width=1, height=1):
 
 def init_game(request):
     key = request.session.session_key
-    request.session['playing'] = True
 
     # если он единственный, ожидающий игру, добавляем его в очередь
     if len(game_logic.players) == 0:
