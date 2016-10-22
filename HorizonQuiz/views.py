@@ -2,6 +2,8 @@ from HorizonQuiz.models import Question, AccuracyQuestion
 from HorizonQuiz.my_unit.model_unit import Region
 from .my_unit import views_unit
 from django.http import JsonResponse
+from HorizonQuiz.my_unit import game_logic
+import uuid
 
 
 def get_question(request):
@@ -37,3 +39,24 @@ def get_play_map(reqeust, width=1, height=1):
         'region-areas': lst_areas,
         'region_sizes': lst_sizes
     })
+
+
+def init_game(request):
+    key = request.session.session_key
+    request.session['playing'] = True
+
+    # если он единственный, ожидающий игру, добавляем его в очередь
+    if len(game_logic.players) == 0:
+        game_logic.players.append(key)
+        return JsonResponse
+
+    # если есть игроки, создаем игру
+    enemy = game_logic.players[0]
+    game_logic.queue_of_gamers = game_logic.players[1:]
+
+    game_id = uuid.uuid1()
+    game_logic.game_ids[key] = game_id
+    game_logic.game_ids[enemy] = game_id
+
+    game_logic.maps[game_id] = dict()
+    return JsonResponse
