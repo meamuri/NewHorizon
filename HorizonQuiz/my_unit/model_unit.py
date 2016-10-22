@@ -18,13 +18,13 @@ class Region(models.Model):
     area = models.CharField(max_length=1024)
 
     def get_collection_of_area_as_strings(self):
-        return self.area.split(';')
+        return self.area.split('--')
 
     def __str__(self):
         return self.url + str(self.x) + str(self.y)
 
     def sizes(self):
-        return str(self.width) + '.' + str(self.height)
+        return str(self.width) + ';' + str(self.height)
 
     def position(self):
-        return str(self.x) + '.' + str(self.y)
+        return str(self.x) + ';' + str(self.y)
