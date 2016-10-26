@@ -1,7 +1,6 @@
 from django.http import JsonResponse
 import random
 
-
 WE_GET_ENUM_QUESTION = 'we_get_enum_question'
 WE_GET_ACCURACY_QUESTION = 'we_get_accuracy_question'
 
@@ -15,16 +14,15 @@ def check_and_inc_score(request, value):
 
 def check_session_status(request, session_text):
     if 'session_status' not in request.session:
-        return JsonResponse({'correct': 'not in session'})
+        return JsonResponse({'correct': 'error', 'what happens': 'not in session'})
     if request.session['session_status'] != session_text:
-        return clear_and_answer(request, {'error': 'not in time'})
+        return clear_and_answer(request, {'correct': 'error', 'what happens': 'not in time'})
 
 
 def clear_and_answer(request, what_you_want_return):
-    res = JsonResponse(what_you_want_return)
     del request.session['session_status']
     del request.session['correct_answer']
-    return res
+    return JsonResponse(what_you_want_return)
 
 
 def user_want_question(request, session_text, q_type):
@@ -35,10 +33,9 @@ def user_want_question(request, session_text, q_type):
 
 
 def user_want_take_answer(request, session_text, value):
-    check_session_status(request, session_text)
+    obj = check_session_status(request, session_text)
+    if obj is not None:
+        return JsonResponse({'error': 'error'})
     delta = request.session['correct_answer'] - value
     check_and_inc_score(request, delta)
-    if session_text == WE_GET_ENUM_QUESTION:
-        return clear_and_answer(request, {'correct': request.session['correct_answer']})
-    else:
-        return clear_and_answer(request, {'delta': delta})
+    return clear_and_answer(request, {'correct': request.session['correct_answer']})
