@@ -28,10 +28,11 @@ def get_play_map(request, width, height):
     lst_sizes = []
     lst_urls = []
     for a in Region.objects.all():
-        lst_areas.append(a.get_collection_of_area_as_strings())
-        lst_pos.append(a.position(width, height))
-        lst_sizes.append(a.sizes(width, height))
-        lst_urls.append(a.url)
+        if a.map_id == 1:
+            lst_areas.append(a.get_collection_of_area_as_strings())
+            lst_pos.append(a.position(width, height))
+            lst_sizes.append(a.sizes(width, height))
+            lst_urls.append(a.url)
 
     return JsonResponse({
         'bg-image': Map.objects.get(pk=1).url,

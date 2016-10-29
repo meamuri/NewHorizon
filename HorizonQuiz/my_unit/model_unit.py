@@ -20,6 +20,8 @@ class Region(models.Model):
     height = models.IntegerField(default=0)
     area = models.CharField(max_length=1024)
     map = models.ForeignKey(Map, default=1)
+    is_capital_area = models.BooleanField(default=False)
+    owner_id = 0
 
     def get_collection_of_area_as_strings(self, screen_width=1, screen_height=1):
         res = []
