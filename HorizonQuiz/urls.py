@@ -7,5 +7,6 @@ urlpatterns = [
     url(r'^enumQuest/(?P<user_answer>[1-4])/$', views.get_enum_answer, name='results'),
     url(r'^accuracyQuest/$', views.get_accuracy_question, name='results'),
     url(r'^accuracyQuest/(?P<digit_of_answer>[0-9]+)/$', views.get_accuracy_answer, name='results'),
+    url(r'^(?P<width>[0-9]+)/(?P<height>[0-9]+)$', views.init_game),
     url(r'^$', views.init_game),
 ]

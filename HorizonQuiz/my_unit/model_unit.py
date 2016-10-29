@@ -27,7 +27,7 @@ class Region(models.Model):
         for pnt in points:
             res.append({
                 'x': int(pnt[:pnt.index(';')]) * screen_width / 100,
-                'y': int(pnt[pnt.index(';') + 1:]) * screen_width / 100
+                'y': int(pnt[pnt.index(';') + 1:]) * screen_height / 100
             })
         return res
 

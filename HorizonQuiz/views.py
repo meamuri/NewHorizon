@@ -22,15 +22,15 @@ def get_accuracy_answer(request, digit_of_answer):
     return views_unit.user_want_take_answer(request, views_unit.WE_GET_ACCURACY_QUESTION, int(digit_of_answer))
 
 
-def get_play_map(reqeust, width=1, height=1):
+def get_play_map(request, width, height):
     lst_areas = []
     lst_pos = []
     lst_sizes = []
     lst_urls = []
     for a in Region.objects.all():
         lst_areas.append(a.get_collection_of_area_as_strings())
-        lst_pos.append(a.position(int(width), int(height)))
-        lst_sizes.append(a.sizes(int(width), int(height)))
+        lst_pos.append(a.position(width, height))
+        lst_sizes.append(a.sizes(width, height))
         lst_urls.append(a.url)
 
     return JsonResponse({
@@ -42,13 +42,15 @@ def get_play_map(reqeust, width=1, height=1):
     })
 
 
-def init_game(request):
+def init_game(request, width=1, height=1):
+
+    game_map = get_play_map(request, int(width), int(height))
     key = request.session.session_key
 
     # если он единственный, ожидающий игру, добавляем его в очередь
     if len(game_logic.players) == 0:
         game_logic.players.append(key)
-        return JsonResponse(dict())
+        return game_map
 
     # если есть игроки, создаем игру
     enemy = game_logic.players[0]  # за врага принимаем первого в очереди
@@ -59,4 +61,4 @@ def init_game(request):
     game_logic.game_ids[enemy] = game_id  # id сессии его врага присваиваем словарю игровых сессий
 
     game_logic.maps[game_id] = dict()
-    return JsonResponse(dict())
+    return game_map
