@@ -1,5 +1,5 @@
 from HorizonQuiz.models import Question, AccuracyQuestion
-from HorizonQuiz.my_unit.model_unit import Region, Map
+from HorizonQuiz.my_unit.model_unit import *
 from .my_unit import views_unit
 from django.http import JsonResponse
 from HorizonQuiz.my_unit import game_logic
@@ -20,6 +20,16 @@ def get_enum_answer(request, user_answer):
 
 def get_accuracy_answer(request, digit_of_answer):
     return views_unit.user_want_take_answer(request, views_unit.WE_GET_ACCURACY_QUESTION, int(digit_of_answer))
+
+
+def attack_area(request, id_area):
+    key = request.session.session_key
+    current_game = game_logic.game_ids[key]
+    if key != game_logic.whose_step_in_game[current_game]:
+        return JsonResponse({'error': 'step is not your!'})
+    if game_logic.maps[current_game][id_area] == key:
+        return JsonResponse({'error': 'is your area!'})
+    return get_enum_question(request)
 
 
 def get_play_map(request, width, height):
@@ -57,6 +67,7 @@ def init_game(request, width=1, height=1):
     game_logic.queue_of_gamers = game_logic.players[1:]  # и удаляем его из очереди
 
     game_id = uuid.uuid1()  # случайную уникальную комбинацию принимаем за игровой id
+    game_logic.whose_step_in_game[game_id] = key
     game_logic.game_ids[key] = game_id  # id сессии нового игрока присваиваем словарю игровых сессий
     game_logic.game_ids[enemy] = game_id  # id сессии его врага присваиваем словарю игровых сессий
 
