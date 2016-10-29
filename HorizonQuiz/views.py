@@ -1,5 +1,5 @@
 from HorizonQuiz.models import Question, AccuracyQuestion
-from HorizonQuiz.my_unit.model_unit import Region
+from HorizonQuiz.my_unit.model_unit import Region, Map
 from .my_unit import views_unit
 from django.http import JsonResponse
 from HorizonQuiz.my_unit import game_logic
@@ -34,7 +34,7 @@ def get_play_map(request, width, height):
         lst_urls.append(a.url)
 
     return JsonResponse({
-        'bg-image': 'some-url',
+        'bg-image': Map.objects.get(pk=1).url,
         'region-images': lst_urls,
         'region-poses': lst_pos,
         'region-areas': lst_areas,
