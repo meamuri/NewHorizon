@@ -43,7 +43,6 @@ def get_play_map(request, width, height):
 
 
 def init_game(request, width=1, height=1):
-
     game_map = get_play_map(request, int(width), int(height))
     key = request.session.session_key
 
