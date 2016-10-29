@@ -48,15 +48,15 @@ def init_game(request):
     # если он единственный, ожидающий игру, добавляем его в очередь
     if len(game_logic.players) == 0:
         game_logic.players.append(key)
-        return JsonResponse
+        return JsonResponse(dict())
 
     # если есть игроки, создаем игру
-    enemy = game_logic.players[0]
-    game_logic.queue_of_gamers = game_logic.players[1:]
+    enemy = game_logic.players[0]  # за врага принимаем первого в очереди
+    game_logic.queue_of_gamers = game_logic.players[1:]  # и удаляем его из очереди
 
-    game_id = uuid.uuid1()
-    game_logic.game_ids[key] = game_id
-    game_logic.game_ids[enemy] = game_id
+    game_id = uuid.uuid1()  # случайную уникальную комбинацию принимаем за игровой id
+    game_logic.game_ids[key] = game_id  # id сессии нового игрока присваиваем словарю игровых сессий
+    game_logic.game_ids[enemy] = game_id  # id сессии его врага присваиваем словарю игровых сессий
 
     game_logic.maps[game_id] = dict()
-    return JsonResponse
+    return JsonResponse(dict())
