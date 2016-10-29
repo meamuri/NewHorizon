@@ -60,5 +60,14 @@ def init_game(request, width=1, height=1):
     game_logic.game_ids[key] = game_id  # id сессии нового игрока присваиваем словарю игровых сессий
     game_logic.game_ids[enemy] = game_id  # id сессии его врага присваиваем словарю игровых сессий
 
-    game_logic.maps[game_id] = dict()
+    current_map = []
+    for obj in Region.objects.all():
+        if obj.map_id == 1:
+            current_map.append(obj)
+            current_map[-1].owner_id = -1
+    current_map[0].is_capital_area = current_map[-1].is_capital_area = True
+    current_map[0].owner_id = key
+    current_map[-1].owner_id = enemy
+
+    game_logic.maps[game_id] = current_map
     return game_map
