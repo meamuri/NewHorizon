@@ -12,6 +12,15 @@ class Map(models.Model):
         return self.url + ' x: ' + str(self.x) + ' y: ' + str(self.y)
 
 
+class RegionType(models.Model):
+    name = models.CharField(max_length=128, default='')
+    width = models.IntegerField(default=0)
+    height = models.IntegerField(default=0)
+
+    def __str__(self):
+        return self.name + " width: " + str(self.width) + " height: " + str(self.height)
+
+
 class Region(models.Model):
     url = models.CharField(max_length=256, default='none')
     x = models.IntegerField(default=0)  # позиция на карте относительно размера самой карты (как коэффициент) 0..100
