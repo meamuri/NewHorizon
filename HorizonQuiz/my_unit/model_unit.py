@@ -25,8 +25,7 @@ class Region(models.Model):
     url = models.CharField(max_length=256, default='none')
     x = models.IntegerField(default=0)  # позиция на карте относительно размера самой карты (как коэффициент) 0..100
     y = models.IntegerField(default=0)  # позиция на карте относительно размера самой карты (как коэффициент) 0..100
-    width = models.IntegerField(default=0)
-    height = models.IntegerField(default=0)
+    reg_type = models.ForeignKey(RegionType, default=1)
     area = models.CharField(max_length=1024)
     map = models.ForeignKey(Map, default=1)
     is_capital_area = models.BooleanField(default=False)
@@ -46,7 +45,7 @@ class Region(models.Model):
         return self.url + " x: " + str(self.x) + " y: " + str(self.y)
 
     def sizes(self, screen_width=1, screen_height=1):
-        return {"width": self.width*screen_width/100, "height": self.height*screen_height/100}
+        return {"width": self.reg_type.width*screen_width/100, "height": self.reg_type.height*screen_height/100}
 
     def position(self, screen_width=1, screen_height=1):
         return {"x": self.x*screen_width/100, "y": self.y*screen_height/100}
