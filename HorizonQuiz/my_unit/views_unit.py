@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from HorizonQuiz.my_unit.model_unit import Region
 import random
 
 WE_GET_ENUM_QUESTION = 'we_get_enum_question'
@@ -39,3 +40,12 @@ def user_want_take_answer(request, session_text, value):
     delta = request.session['correct_answer'] - value
     check_and_inc_score(request, delta)
     return clear_and_answer(request, {'correct': request.session['correct_answer']})
+
+
+def fill_reg_info(num, areas, poses, sizes, urls, width=1, height=1):
+    for a in Region.objects.all():
+        if a.map_id == num:
+            areas.append(a.get_collection_of_area_as_strings())
+            poses.append(a.position(width, height))
+            sizes.append(a.sizes(width, height))
+            urls.append(a.reg_type.url)
