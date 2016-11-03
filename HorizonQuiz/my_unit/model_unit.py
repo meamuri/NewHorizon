@@ -13,6 +13,7 @@ class Map(models.Model):
 
 
 class RegionType(models.Model):
+    url = models.CharField(max_length=256, default='none')
     name = models.CharField(max_length=128, default='')
     width = models.IntegerField(default=0)
     height = models.IntegerField(default=0)
@@ -22,13 +23,13 @@ class RegionType(models.Model):
 
 
 class Region(models.Model):
-    url = models.CharField(max_length=256, default='none')
     x = models.IntegerField(default=0)  # позиция на карте относительно размера самой карты (как коэффициент) 0..100
     y = models.IntegerField(default=0)  # позиция на карте относительно размера самой карты (как коэффициент) 0..100
     reg_type = models.ForeignKey(RegionType, default=1)
     area = models.CharField(max_length=1024)
     map = models.ForeignKey(Map, default=1)
     is_capital_area = models.BooleanField(default=False)
+
     owner_id = 0
 
     def get_collection_of_area_as_strings(self, screen_width=1, screen_height=1):
@@ -42,7 +43,7 @@ class Region(models.Model):
         return res
 
     def __str__(self):
-        return self.url + " x: " + str(self.x) + " y: " + str(self.y)
+        return self.reg_type.url + " x: " + str(self.x) + " y: " + str(self.y)
 
     def sizes(self, screen_width=1, screen_height=1):
         return {"width": self.reg_type.width*screen_width/100, "height": self.reg_type.height*screen_height/100}
