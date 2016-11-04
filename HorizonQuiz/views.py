@@ -22,6 +22,21 @@ def get_accuracy_answer(request, digit_of_answer):
     return views_unit.user_want_take_answer(request, views_unit.WE_GET_ACCURACY_QUESTION, int(digit_of_answer))
 
 
+def game_center(request, num=-1):
+    key = request.session.session_key
+    if key not in game_logic.game_ids:
+        return init_game(request)
+
+    current_game = game_logic.game_ids[key]  # ищем игру по id сессии
+    if game_logic.game_turn[current_game] == game_logic.TURN_OF_GAME[0] or game_logic.game_turn[current_game] == \
+            game_logic.TURN_OF_GAME[1]:
+        return attack_area(request, num)
+    if game_logic.game_turn[current_game] == game_logic.TURN_OF_GAME[2]:
+        return fight_result(request, num)
+
+    return JsonResponse({'error': 'omg error'})
+
+
 def attack_area(request, id_area):
     key = request.session.session_key  # получаем ключ игрока, который делает ход
     current_game = game_logic.game_ids[key]  # ищем его игру по этому ключу
@@ -38,6 +53,7 @@ def attack_area(request, id_area):
 
     # Если все хорошо, получаем вопрос
     request.session['area_id'] = id_area
+    game_logic.game_turn[current_game] = game_logic.TURN_OF_GAME[2]
     return get_enum_question(request)
 
 
@@ -49,6 +65,7 @@ def fight_result(request, user_answer):
     if 'error' in res_obj:
         return res_obj
 
+    game_logic.game_turn[current_game] = game_logic.TURN_OF_GAME[1]
     if res_obj['correct'] == request.session['correct_answer']:
         game_logic.maps[current_game][request.session['area_id']] = key
     return res_obj
@@ -74,7 +91,6 @@ def get_play_map(request, width, height):
 
 
 def init_game(request, width=1, height=1):
-    request.session['session_status'] = views_unit.PLAYER_STARTS_GAME
     game_map = get_play_map(request, int(width), int(height))
     key = request.session.session_key
 
@@ -94,6 +110,7 @@ def init_game(request, width=1, height=1):
     game_logic.game_ids[key] = game_id  # id сессии нового игрока присваиваем словарю игровых сессий
     game_logic.game_ids[enemy] = game_id  # id сессии его врага присваиваем словарю игровых сессий
     game_logic.game_round[game_id] = 0
+    game_logic.game_turn[game_id] = game_logic.TURN_OF_GAME[0]
 
     current_map = []
     views_unit.fill_game_map(current_map, key, enemy)
