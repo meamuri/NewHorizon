@@ -18,13 +18,13 @@ def check_session_status(request, session_text):
     if 'session_status' not in request.session:
         return JsonResponse({'correct': 'error', 'what happens': 'not in session'})
     if request.session['session_status'] != session_text:
-        return clear_and_answer(request, {'correct': 'error', 'what happens': 'not in time'})
+        clear_session(request)
+        return JsonResponse({'correct': 'error', 'what happens': 'not in time'})
 
 
-def clear_and_answer(request, what_you_want_return):
+def clear_session(request):
     del request.session['session_status']
     del request.session['correct_answer']
-    return JsonResponse(what_you_want_return)
 
 
 def user_want_question(request, session_text, q_type):
@@ -38,9 +38,12 @@ def user_want_take_answer(request, session_text, value):
     obj = check_session_status(request, session_text)
     if obj is not None:
         return JsonResponse({'error': 'error'})
-    delta = request.session['correct_answer'] - value
-    check_and_inc_score(request, delta)
-    return clear_and_answer(request, {'correct': request.session['correct_answer']})
+    correct = request.session['correct_answer']
+    clear_session(request)
+    return {
+        'correct': correct,
+        'its_true_answer?': abs(correct - value) == 0,
+    }
 
 
 def fill_regions_info(num, areas, poses, sizes, urls, width=1, height=1):

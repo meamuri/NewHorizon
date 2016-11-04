@@ -42,7 +42,7 @@ def game_center(request, num=1):
     if game_logic.game_turn[current_game] == game_logic.TURN_OF_GAME[2]:
         res = fight_result(request, int(num))
         check_and_resume_game(current_game)
-        return res
+        return JsonResponse(res)
 
     return attack_area(request, int(num), key, current_game)
 
@@ -73,8 +73,9 @@ def fight_result(request, user_answer):
         return res_obj
 
     game_logic.game_turn[current_game] = game_logic.TURN_OF_GAME[1]
-    if res_obj['correct'] == request.session['correct_answer']:
-        game_logic.maps[current_game][request.session['area_id']] = key
+    if res_obj['its_true_answer?']:
+        curr_map = game_logic.maps[current_game]
+        curr_map[request.session['area_id']] = key
     return res_obj
 
 
