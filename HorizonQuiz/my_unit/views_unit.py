@@ -46,15 +46,15 @@ def user_want_take_answer(request, session_text, value):
 def fill_regions_info(num, areas, poses, sizes, urls, width=1, height=1):
     for a in Region.objects.all():
         if a.map_id == num:
-            areas.append(a.get_collection_of_area_as_strings())
+            areas.append(a.get_collection_of_area_as_strings(width, height))
             poses.append(a.position(width, height))
-            sizes.append(a.sizes(width, height))
+            sizes.append(a.sizes())
             urls.append(a.reg_type.url)
 
 
-def fill_game_map(curr_map, player, his_enemy):
+def fill_game_map(curr_map, map_id, player, his_enemy):
     for obj in Region.objects.all():
-        if obj.map_id == 1:
+        if obj.map_id == map_id:
             curr_map.append(obj)
             curr_map[-1].owner_id = -1
     curr_map[0].is_capital_area = curr_map[-1].is_capital_area = True
