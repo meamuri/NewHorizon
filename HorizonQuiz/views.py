@@ -37,7 +37,21 @@ def attack_area(request, id_area):
         return JsonResponse({'error': 'is your area!'})
 
     # Если все хорошо, получаем вопрос
+    request.session['area_id'] = id_area
     return get_enum_question(request)
+
+
+def fight_result(request, user_answer):
+    key = request.session.session_key  # получаем ключ игрока, который делает ход
+    current_game = game_logic.game_ids[key]  # ищем его игру по этому ключу
+
+    res_obj = get_enum_answer(request, user_answer)
+    if 'error' in res_obj:
+        return res_obj
+
+    if res_obj['correct'] == request.session['correct_answer']:
+        game_logic.maps[current_game][request.session['area_id']] = key
+    return res_obj
 
 
 def get_play_map(request, width, height):
