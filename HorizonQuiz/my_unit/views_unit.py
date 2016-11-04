@@ -4,6 +4,7 @@ import random
 
 WE_GET_ENUM_QUESTION = 'we_get_enum_question'
 WE_GET_ACCURACY_QUESTION = 'we_get_accuracy_question'
+PLAYER_STARTS_GAME = 'player_starts_game'
 
 
 def check_and_inc_score(request, value):
@@ -42,10 +43,20 @@ def user_want_take_answer(request, session_text, value):
     return clear_and_answer(request, {'correct': request.session['correct_answer']})
 
 
-def fill_reg_info(num, areas, poses, sizes, urls, width=1, height=1):
+def fill_regions_info(num, areas, poses, sizes, urls, width=1, height=1):
     for a in Region.objects.all():
         if a.map_id == num:
             areas.append(a.get_collection_of_area_as_strings())
             poses.append(a.position(width, height))
             sizes.append(a.sizes(width, height))
             urls.append(a.reg_type.url)
+
+
+def fill_game_map(curr_map, player, his_enemy):
+    for obj in Region.objects.all():
+        if obj.map_id == 1:
+            curr_map.append(obj)
+            curr_map[-1].owner_id = -1
+    curr_map[0].is_capital_area = curr_map[-1].is_capital_area = True
+    curr_map[0].owner_id = player
+    curr_map[-1].owner_id = his_enemy

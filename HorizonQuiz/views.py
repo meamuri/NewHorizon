@@ -23,12 +23,20 @@ def get_accuracy_answer(request, digit_of_answer):
 
 
 def attack_area(request, id_area):
-    key = request.session.session_key
-    current_game = game_logic.game_ids[key]
+    key = request.session.session_key  # получаем ключ игрока, который делает ход
+    current_game = game_logic.game_ids[key]  # ищем его игру по этому ключу
+
+    # возможно, он делает ход не в свой шаг
+    # чтобы это проверить, ищем в словаре whose_step айди игрока, чей ход. Ищем по ключу игры
     if key != game_logic.whose_step_in_game[current_game]:
         return JsonResponse({'error': 'step is not your!'})
+
+    # Если игрок делает ход в свой ход, проверяем, что атакуемая область нейтральна или
+    # занята врагом (не является занятой им же)
     if game_logic.maps[current_game][id_area] == key:
         return JsonResponse({'error': 'is your area!'})
+
+    # Если все хорошо, получаем вопрос
     return get_enum_question(request)
 
 
@@ -38,9 +46,9 @@ def get_play_map(request, width, height):
     lst_sizes = []
     lst_urls = []
 
-    views_unit.fill_reg_info(2, lst_areas, lst_pos, lst_sizes, lst_urls, width, height)
-    views_unit.fill_reg_info(1, lst_areas, lst_pos, lst_sizes, lst_urls, width, height)
-    views_unit.fill_reg_info(3, lst_areas, lst_pos, lst_sizes, lst_urls, width, height)
+    views_unit.fill_regions_info(2, lst_areas, lst_pos, lst_sizes, lst_urls, width, height)
+    views_unit.fill_regions_info(1, lst_areas, lst_pos, lst_sizes, lst_urls, width, height)
+    views_unit.fill_regions_info(3, lst_areas, lst_pos, lst_sizes, lst_urls, width, height)
 
     return JsonResponse({
         'bg-image': Map.objects.get(pk=1).url,
@@ -52,6 +60,7 @@ def get_play_map(request, width, height):
 
 
 def init_game(request, width=1, height=1):
+    request['session_status'] = views_unit.PLAYER_STARTS_GAME
     game_map = get_play_map(request, int(width), int(height))
     key = request.session.session_key
 
@@ -65,18 +74,15 @@ def init_game(request, width=1, height=1):
     game_logic.queue_of_gamers = game_logic.players[1:]  # и удаляем его из очереди
 
     game_id = uuid.uuid1()  # случайную уникальную комбинацию принимаем за игровой id
-    game_logic.whose_step_in_game[game_id] = key
+    game_logic.whose_step_in_game[game_id] = key  # игра начинается с того игрока, который только пришел
+    # его соперник, возможно, уже отчаялся ждать и отложил устройство
+
     game_logic.game_ids[key] = game_id  # id сессии нового игрока присваиваем словарю игровых сессий
     game_logic.game_ids[enemy] = game_id  # id сессии его врага присваиваем словарю игровых сессий
+    game_logic.game_round[game_id] = 0
 
     current_map = []
-    for obj in Region.objects.all():
-        if obj.map_id == 1:
-            current_map.append(obj)
-            current_map[-1].owner_id = -1
-    current_map[0].is_capital_area = current_map[-1].is_capital_area = True
-    current_map[0].owner_id = key
-    current_map[-1].owner_id = enemy
-
+    views_unit.fill_game_map(current_map, key, enemy)
     game_logic.maps[game_id] = current_map
+
     return game_map
