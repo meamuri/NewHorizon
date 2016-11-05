@@ -112,6 +112,10 @@ def get_play_map(request, map_id, width, height):
     })
 
 
+def check_pair(request):
+    return JsonResponse({'enemy': request.session.session_key in game_logic.game_ids})
+
+
 def init_game(player_key, his_enemy, game_id, map_id):
     # игра начинается с того игрока, который только пришел
     # его соперник, возможно, уже отчаялся ждать и отложил устройство
