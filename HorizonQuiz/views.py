@@ -27,7 +27,7 @@ def round_up_or_resume(game_id):
     if game_logic.game_round[game_id] == 15:
         game_logic.game_turn = game_logic.TURN_OF_GAME[3]
         del game_logic.game_ids[game_id]
-        del game_logic.whose_step_in_game[game_id]
+        del game_logic.whose_step[game_id]
         del game_logic.game_round[game_id]
         del game_logic.game_turn[game_id]
         del game_logic.maps[game_id]
@@ -39,22 +39,23 @@ def game_center(request, num=1):
         return JsonResponse({'error': 'the game is not initialized!'})
 
     current_game = game_logic.game_ids[player_key]  # ищем игру по id сессии
+    enemy_of_player = game_logic.enemies[player_key]
 
-    if game_logic.game_turn[current_game] == game_logic.TURN_OF_GAME['check_fight_result']:
-        res = fight_result(request, int(num))
+    if game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['check_fight_result'] or game_logic.game_turn[
+            player_key] == game_logic.TURN_OF_GAME['check_accuracy']:
         round_up_or_resume(current_game)
-        game_logic.whose_step_in_game[current_game] = game_logic.enemies[player_key]
+        res = fight_result(request, int(num), player_key, enemy_of_player, current_game)
         return JsonResponse(res)
 
     # возможно, игрок player_key делает ход не в свой шаг
     # чтобы это проверить, ищем в словаре whose_step айди игрока, чей ход. Ищем по ключу игры
-    if player_key != game_logic.whose_step_in_game[current_game]:
+    if player_key != game_logic.whose_step[current_game]:
         return JsonResponse({'error': 'step is not your!'})
 
-    return attack_area(request, int(num), player_key, current_game)
+    return attack_area(request, int(num), player_key, enemy_of_player, current_game)
 
 
-def attack_area(request, id_area, player_key, current_game):
+def attack_area(request, id_area, player_key, his_enemy, current_game):
     # Если игрок делает ход в свой ход, проверяем, что атакуемая область нейтральна или
     # занята врагом (не является занятой им же)
     if game_logic.maps[current_game][id_area] == player_key:
@@ -62,25 +63,30 @@ def attack_area(request, id_area, player_key, current_game):
 
     request.session['area_id'] = id_area
     if game_logic.maps[current_game][id_area] == -1:  # область нейтраьная
-        game_logic.game_turn[current_game] = game_logic.TURN_OF_GAME['attack_neutral_area']
+        game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['attack_neutral_area']
+        game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['attack_neutral_area']
         return get_enum_question(request)
 
-    game_logic.game_turn[game_logic.enemies[player_key]] = game_logic.TURN_OF_GAME['enemy_attack_me!!!']
-    game_logic.game_turn[current_game] = game_logic.TURN_OF_GAME['attack_enemy_area']
+    game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['attack_enemy_area']
+    game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['enemy_attack_me!!!']
 
 
-def fight_result(request, user_answer):
-    key = request.session.session_key  # получаем ключ игрока, который делает ход
-    current_game = game_logic.game_ids[key]  # ищем его игру по этому ключу
+def fight_result(request, user_answer, player_key, his_enemy, current_game):
+    if game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['check_fight_result']:
+        res_obj = get_enum_answer(request, user_answer)
+    else:
+        res_obj = get_accuracy_answer(request, user_answer)
 
-    res_obj = get_enum_answer(request, user_answer)
     if 'error' in res_obj:
         return res_obj
 
-    game_logic.game_turn[current_game] = game_logic.TURN_OF_GAME[1]
     if res_obj['its_true_answer?']:
         curr_map = game_logic.maps[current_game]
-        curr_map[request.session['area_id']] = key
+        curr_map[request.session['area_id']] = player_key
+
+    game_logic.whose_step[current_game] = his_enemy
+    game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['wait_his_opponent']
+    game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['can_make_move']
     return res_obj
 
 
@@ -126,14 +132,15 @@ def check_pair(request):
 def init_game(player_key, his_enemy, game_id, map_id):
     # игра начинается с того игрока, который только пришел
     # его соперник, возможно, уже отчаялся ждать и отложил устройство
-    game_logic.whose_step_in_game[game_id] = player_key
+    game_logic.whose_step[game_id] = player_key
 
     game_logic.enemies[player_key] = his_enemy
     game_logic.enemies[his_enemy] = player_key
     game_logic.game_ids[player_key] = game_id  # id сессии нового игрока присваиваем словарю игровых сессий
     game_logic.game_ids[his_enemy] = game_id  # id сессии его врага присваиваем словарю игровых сессий
     game_logic.game_round[game_id] = 0
-    game_logic.game_turn[game_id] = game_logic.TURN_OF_GAME['started']
+    game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['can_make_move']
+    game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['wait_his_opponent']
 
     current_map = []
     views_unit.fill_game_map(current_map, map_id, player_key, his_enemy)  # распределяем локации на карте
