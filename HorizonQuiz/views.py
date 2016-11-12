@@ -83,6 +83,9 @@ def fight_result(request, user_answer, player_key, his_enemy, current_game):
 
 
 def player_start_game(request, width=1, height=1, map_id=1):
+    if not request.session.session_key:
+        request.session.save()
+
     game_map = get_play_map(request, int(map_id), int(width), int(height))
     player_key = request.session.session_key
     if len(game_logic.players) == 0:  # or game_logic.players[0] == player_key:

@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 
-
+SESSION_SAVE_EVERY_REQUEST = True
 SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
