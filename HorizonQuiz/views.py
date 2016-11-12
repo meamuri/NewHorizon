@@ -54,6 +54,43 @@ def game_center(request, num=1):
     return attack_area(request, int(num), player_key, enemy_of_player, current_game)
 
 
+def game_center_full_stack(request, num=1):
+    player_key = request.session.session_key
+    if player_key not in game_logic.game_ids:
+        return JsonResponse({'error': 'the game is not initialized!'})
+    current_game = game_logic.game_ids[player_key]  # ищем игру по id сессии
+    enemy_of_player = game_logic.enemies[player_key]
+
+    if game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['can_make_move']:
+        attack_area(request, num, player_key, enemy_of_player, current_game)
+        game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['attack_neutral_area']
+        game_logic.game_turn[enemy_of_player] = game_logic.TURN_OF_GAME['attack_neutral_area']
+    elif game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['wait_his_opponent']:
+        return JsonResponse({
+            'wait': 'we wait player with id ' + str(enemy_of_player)
+        })
+    elif game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['attack_some_area']:
+        pass
+    elif game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['attack_neutral_area']:
+        pass
+    elif game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['attack_enemy_area']:
+        pass
+    elif game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['enemy_attack_me!!!']:
+        pass
+    elif game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['enemy_fight_too']:
+        pass
+    elif game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['accuracy_fight']:
+        pass
+    elif game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['check_fight_result']:
+        pass
+    elif game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['check_accuracy']:
+        pass
+    elif game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['round_is_over']:
+        pass
+    elif game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['finished']:
+        pass
+
+
 def attack_area(request, id_area, player_key, his_enemy, current_game):
     # Если игрок делает ход в свой ход, проверяем, что атакуемая область нейтральна или
     # занята врагом (не является занятой им же)
@@ -68,6 +105,7 @@ def attack_area(request, id_area, player_key, his_enemy, current_game):
 
     game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['attack_enemy_area']
     game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['enemy_attack_me!!!']
+    return get_enum_question(request)
 
 
 def fight_result(request, user_answer, player_key, his_enemy, current_game):
