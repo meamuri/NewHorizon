@@ -141,6 +141,7 @@ def get_play_map(request, map_id, width, height):
         'region-areas': lst_areas,
         'region-sizes': lst_sizes,
         'region-types': lst_types,
+        'region-owner': [1, 0, 0, 0, 0, 0, 0, 1],
     })
 
 

@@ -55,9 +55,9 @@ def fill_regions_info(num, areas, poses, sizes, urls, types, width=1, height=1):
             sizes.append(a.sizes())
             urls.append(a.reg_type.url)
             if a.is_capital_area:
-                types.append(game_logic.WHOSE_AREA['capital_of_first'])
+                types.append(1)
             else:
-                types.append(game_logic.WHOSE_AREA['empty'])
+                types.append(0)
     types[-1] = game_logic.WHOSE_AREA['capital_of_second']
 
 
