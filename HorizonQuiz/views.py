@@ -77,7 +77,7 @@ def fight_result(request, user_answer, player_key, his_enemy, current_game):
         curr_map[request.session['area_id']] = player_key
 
     game_logic.whose_step[current_game] = his_enemy
-    game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['wait_his_opponent']
+    game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['can_make_move']
     game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['can_make_move']
     return res_obj
 
