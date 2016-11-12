@@ -28,9 +28,9 @@ TURN_OF_GAME = {
 }
 
 WHOSE_AREA = {
-    'capital_of_first': 0,
+    'empty': 0,
     'capital_of_second': 1,
-    'empty': 2,
+    'capital_of_first': 2,
     'area_of_first': 3,
     'area_of_second': 4,
 }

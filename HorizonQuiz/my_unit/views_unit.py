@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from HorizonQuiz.my_unit import game_logic
 from HorizonQuiz.my_unit.model_unit import Region
 import random
 
@@ -54,9 +55,10 @@ def fill_regions_info(num, areas, poses, sizes, urls, types, width=1, height=1):
             sizes.append(a.sizes())
             urls.append(a.reg_type.url)
             if a.is_capital_area:
-                types.append(1)
+                types.append(game_logic.WHOSE_AREA['capital_of_first'])
             else:
-                types.append(0)
+                types.append(game_logic.WHOSE_AREA['empty'])
+    types[-1] = game_logic.WHOSE_AREA['capital_of_second']
 
 
 def fill_game_map(curr_map, map_id, player, his_enemy):
