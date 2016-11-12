@@ -61,11 +61,11 @@ def fill_regions_info(num, areas, poses, sizes, urls, types, width=1, height=1):
     types[-1] = game_logic.WHOSE_AREA['capital_of_second']
 
 
-def fill_game_map(curr_map, map_id, player, his_enemy):
+def fill_game_map(curr_map, map_id):
     for obj in Region.objects.all():
         if obj.map_id == map_id:
             curr_map.append(obj)
-            curr_map[-1].owner_id = -1
+            curr_map[-1].owner_id = 0
     curr_map[0].is_capital_area = curr_map[-1].is_capital_area = True
-    curr_map[0].owner_id = player
-    curr_map[-1].owner_id = his_enemy
+    curr_map[0].owner_id = 1
+    curr_map[-1].owner_id = 2

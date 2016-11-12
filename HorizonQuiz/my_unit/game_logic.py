@@ -10,21 +10,11 @@ whose_step = dict()  # game_id ---> player_id
 
 TURN_OF_GAME = {
     'can_make_move': 0,
-    'wait_his_opponent': 10,
 
-    'attack_some_area': 1,
-    'attack_neutral_area': 7,
-    'attack_enemy_area': 8,
+    'attack_area': 1,
+    'check_round': 2,
 
-    'enemy_fight_too': 8,
-    'enemy_attack_me!!!': 9,
-    'accuracy_fight': 3,
-
-    'check_fight_result': 2,
-    'check_accuracy': 4,
-
-    'round_is_over': 5,
-    'finished': 6,
+    'finished': 3,
 }
 
 WHOSE_AREA = {
