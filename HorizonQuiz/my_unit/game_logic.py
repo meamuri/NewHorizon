@@ -1,10 +1,11 @@
-players = []         # players id
-enemies = dict()     # player_id ---> player_id (his enemy)
-game_ids = dict()    # player_id ---> game_id
-game_turn = dict()   # player_id ---> TURN_OF_GAME[k]
+players = []         # players keys
+enemies = dict()     # player_key ---> player_id (his enemy)
+game_ids = dict()    # player_key ---> game_id
+game_turn = dict()   # player_key ---> TURN_OF_GAME[k]
 game_round = dict()  # game_id ---> step of game
 maps = dict()        # game_id ---> regions
-whose_step = dict()  # game_id ---> player_id
+whose_step = dict()  # game_id ---> player_key
+players_id = dict()  # player_key ---> player_id
 
 # current logic: session_key -> game -> whose_step -> game_turn
 

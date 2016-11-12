@@ -74,7 +74,7 @@ def fight_result(request, user_answer, player_key, his_enemy, current_game):
 
     if res_obj['its_true_answer?']:
         curr_map = game_logic.maps[current_game]
-        curr_map[request.session['area_id']] = player_key
+        curr_map[request.session['area_id']].owner_id = game_logic.players_id[player_key]
 
     game_logic.whose_step[current_game] = his_enemy
     game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['can_make_move']
@@ -157,6 +157,8 @@ def init_game(player_key, his_enemy, game_id, map_id):
     # его соперник, возможно, уже отчаялся ждать и отложил устройство
     game_logic.whose_step[game_id] = player_key
 
+    game_logic.players_id[player_key] = 1
+    game_logic.players_id[his_enemy] = 2
     game_logic.enemies[player_key] = his_enemy
     game_logic.enemies[his_enemy] = player_key
     game_logic.game_ids[player_key] = game_id  # id сессии нового игрока присваиваем словарю игровых сессий
