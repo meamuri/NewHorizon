@@ -1,5 +1,4 @@
 from HorizonQuiz.models import Question, AccuracyQuestion
-from HorizonQuiz.my_unit.model_unit import *
 from .my_unit import views_unit
 from django.http import JsonResponse
 from HorizonQuiz.my_unit import game_logic
@@ -113,15 +112,17 @@ def get_play_map(request, map_id, width, height):
     lst_pos = []
     lst_sizes = []
     lst_urls = []
+    lst_types = []
 
-    views_unit.fill_regions_info(map_id, lst_areas, lst_pos, lst_sizes, lst_urls, width, height)
+    views_unit.fill_regions_info(map_id, lst_areas, lst_pos, lst_sizes, lst_urls, lst_types, width, height)
 
     return JsonResponse({
-        'bg-image': Map.objects.get(pk=map_id).url,
-        'region-images': lst_urls,
+        # 'bg-image': Map.objects.get(pk=map_id).url,
+        # 'region-images': lst_urls,
         'region-poses': lst_pos,
         'region-areas': lst_areas,
-        'region-sizes': lst_sizes
+        'region-sizes': lst_sizes,
+        'region-types': lst_types,
     })
 
 
