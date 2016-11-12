@@ -63,7 +63,7 @@ def game_center_full_stack(request, num=1):
 
     if game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['can_make_move']:
         attack_area(request, num, player_key, enemy_of_player, current_game)
-        game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['attack_neutral_area']
+        game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['attack_some_area']
         game_logic.game_turn[enemy_of_player] = game_logic.TURN_OF_GAME['attack_neutral_area']
     elif game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['wait_his_opponent']:
         return JsonResponse({
@@ -99,12 +99,12 @@ def attack_area(request, id_area, player_key, his_enemy, current_game):
 
     request.session['area_id'] = id_area
     if game_logic.maps[current_game][id_area] == -1:  # область нейтраьная
-        game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['attack_neutral_area']
-        game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['attack_neutral_area']
+        game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['check_fight_result']
+        game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['can_make_move']
         return get_enum_question(request)
 
-    game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['attack_enemy_area']
-    game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['enemy_attack_me!!!']
+    game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['check_fight_result']
+    game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['can_make_move']
     return get_enum_question(request)
 
 
