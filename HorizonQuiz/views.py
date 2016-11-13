@@ -144,7 +144,7 @@ def get_play_map(request, map_id, width, height):
         'region-areas': lst_areas,
         'region-sizes': lst_sizes,
         'region-types': lst_types,
-        'region-owner': [1, 0, 0, 0, 0, 0, 0, 1],
+        'region-owner': [1, 0, 0, 0, 0, 0, 0, 2],
     })
 
 
@@ -167,6 +167,5 @@ def init_game(player_key, his_enemy, game_id, map_id):
     game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['can_make_move']
     game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['can_make_move']
 
-    current_map = []
-    views_unit.fill_game_map(current_map, map_id)  # распределяем локации на карте
+    current_map = views_unit.get_game_map_from_model(map_id)  # распределяем локации на карте
     game_logic.maps[game_id] = current_map

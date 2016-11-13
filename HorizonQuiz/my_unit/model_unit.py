@@ -27,7 +27,7 @@ class Region(models.Model):
     y = models.IntegerField(default=0)  # позиция на карте относительно размера самой карты (как коэффициент) 0..100
     reg_type = models.ForeignKey(RegionType, default=1)
     area = models.CharField(max_length=1024)
-    map = models.ForeignKey(Map, default=1)
+    game_map = models.ForeignKey(Map, default=1)
     is_capital_area = models.BooleanField(default=False)
 
     owner_id = 0

@@ -7,31 +7,30 @@ maps = dict()        # game_id ---> regions
 whose_step = dict()  # game_id ---> player_key
 players_id = dict()  # player_key ---> player_id
 
-# current logic: session_key -> game -> whose_step -> game_turn
-
 TURN_OF_GAME = {
     'can_make_move': 0,
-
     'attack_area': 1,
     'check_round': 2,
-
     'finished': 3,
 }
 
-WHOSE_AREA = {
-    'empty': 0,
-    'capital_of_second': 1,
-    'capital_of_first': 2,
-    'area_of_first': 3,
-    'area_of_second': 4,
-}
 
-# 1. бой за нейтральную
-# 2. бой за вражескую:
-#   2.1. Оба получили вопросы
-#   2.2. Оба ответ:
-#       2.2.1. Оба ответили неверно
-#       2.2.2. Атакующий ответил неверно
-#       2.2.3. Защищающийся ответил неверно
-#       2.2.4. Оба ответили верно:
-#           2.2.4.1. Вопрос на точность
+class GameMap:
+    regions = []
+    capitals = [0, 0]  # индексы тех регионов, которые являются столицами
+
+
+class Game:
+    players_parties = dict()  # стороны конфликта, 1 и 2
+    round = 0
+    game_turn = dict()
+    game_round = 0
+
+    def __init__(self, player_key, his_enemy):
+        self.player_who_come_later = player_key
+        self.player_who_wait_games = his_enemy
+        self.players_parties[player_key] = 1
+        self.players_parties[his_enemy] = 2
+        self.whose_step = player_key
+        self.game_map = GameMap()
+        self.game_turn[self.round] = TURN_OF_GAME['round_start']
