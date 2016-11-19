@@ -13,27 +13,27 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AddField(
-            model_name='game_map',
+            model_name='map',
             name='height',
             field=models.IntegerField(default=100),
         ),
         migrations.AddField(
-            model_name='game_map',
+            model_name='map',
             name='width',
             field=models.IntegerField(default=100),
         ),
         migrations.AddField(
-            model_name='game_map',
+            model_name='map',
             name='x',
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='game_map',
+            model_name='map',
             name='y',
             field=models.IntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='game_map',
+            model_name='map',
             name='url',
             field=models.CharField(default='default', max_length=256),
         ),
