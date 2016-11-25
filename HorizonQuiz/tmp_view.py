@@ -29,7 +29,7 @@ def player_start_game(request, width=1, height=1, map_id=1):
     logic.players = logic.players[1:]  # и удаляем его из очереди
 
     game_id = uuid.uuid1()  # случайную уникальную комбинацию принимаем за игровой id
-    init_game(player_key, enemy, game_id, int(map_id))  # инициализация карты, соперников, стадии игры
+    init_game(player_key=player_key, his_enemy=enemy, game_id=game_id, map_id=int(map_id))
     return game_map
 
 
@@ -85,14 +85,12 @@ def game_center(request, num=1):
     if request.session['situation'] == logic.SITUATION_FOR_PLAYER['start_game']:
         request.session['url_area'] = val
         area_condition = the_game.get_area_state(val)
+        request.session['round'] = 1
         if area_condition == logic.AREA_CONDITION['neutral']:
-            request.session['count'] = 1
             request.session['situation'] = logic.SITUATION_FOR_PLAYER['attack_neutral']
         elif area_condition == logic.AREA_CONDITION['of_enemy']:
-            request.session['count'] = 1
             request.session['situation'] = logic.SITUATION_FOR_PLAYER['attack_enemy']
         else:
-            request.session['count'] = 3
             request.session['situation'] = logic.SITUATION_FOR_PLAYER['attack_capital']
 
     return attack_area(request, current_game=the_game)
@@ -101,7 +99,7 @@ def game_center(request, num=1):
 def attack_area(request, current_game):
     current_game.game_turn = logic.TURN_OF_GAME['check']
 
-    if request.session['situation'] == logic.SITUATION_FOR_PLAYER['attack_neutral'] or request.session['count'] != 1:
+    if request.session['count'] > 1:
         return views.get_enum_question(request)
 
     return views.get_accuracy_question(request)

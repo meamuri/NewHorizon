@@ -49,7 +49,7 @@ def user_want_take_answer(request, session_text, value):
 
 def fill_regions_info(num, areas, poses, sizes, urls, types, width=1, height=1):
     for a in Region.objects.all():
-        if a.map_id == num:
+        if a.game_map.id == num:
             areas.append(a.get_collection_of_area_as_strings(width, height))
             poses.append(a.position(width, height))
             sizes.append(a.sizes())
@@ -68,7 +68,7 @@ def get_game_map_from_model(map_id):
     """
     curr_map = []
     for obj in Region.objects.all():
-        if obj.map_id == map_id:
+        if obj.game_map.id == map_id:
             curr_map.append(obj)
             curr_map[-1].owner_id = 0
             curr_map[-1].is_capital_area = curr_map[-1].game_map.name == 'general_Capital'

@@ -65,6 +65,7 @@ class Game:
     players_parties = dict()  # стороны конфликта, 1 и 2
     members = dict()
     enemies = dict()
+    round_results = dict()
     game_map = GameMap()
 
     def __init__(self, player_key, his_enemy):
@@ -76,10 +77,12 @@ class Game:
         self.enemies[his_enemy] = player_key
         self.members[1] = player_key
         self.members[2] = his_enemy
-
+        self.round_results[self.players_parties[player_key]] = False
+        self.round_results[self.players_parties[his_enemy]] = False
         self.round = 0
         self.whose_step = 1
         self.game_turn = TURN_OF_GAME['can_attack']
+        self.who_start_this_round = self.players_parties[player_key]
 
     def is_your_step(self, player_key):
         """
@@ -111,3 +114,10 @@ class Game:
 
     def get_area_state(self, area_id):
         return self.game_map.get_area_state(area_id)
+
+    def set_who_start_round(self, player_key):
+        self.who_start_this_round = self.players_parties[player_key]
+
+    def is_he_start_round(self, player_key):
+        return self.who_start_this_round == self.players_parties[player_key]
+
