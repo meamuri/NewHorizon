@@ -68,6 +68,7 @@ def attack_area(request, id_area, player_key, his_enemy, current_game):
 
     game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['attack_enemy_area']
     game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['enemy_attack_me!!!']
+    return get_enum_question(request)
 
 
 def fight_result(request, user_answer, player_key, his_enemy, current_game):
