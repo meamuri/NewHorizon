@@ -1,7 +1,6 @@
 from django.conf.urls import url
 from . import views
 
-
 urlpatterns = [
     url(r'^enumQuest/$', views.get_enum_question, name='index'),
     url(r'^enumQuest/(?P<user_answer>[1-4])/$', views.get_enum_answer, name='results'),
