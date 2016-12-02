@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from HorizonQuiz.my_unit.model_unit import Region
+from HorizonQuiz.my_unit.map_model import Region
 import random
 
 WE_GET_ENUM_QUESTION = 'we_get_enum_question'
@@ -46,24 +46,3 @@ def user_want_take_answer(request, session_text, value):
     }
 
 
-def fill_regions_info(num, areas, poses, sizes, urls, types, width=1, height=1):
-    for a in Region.objects.all():
-        if a.map_id == num:
-            areas.append(a.get_collection_of_area_as_strings(width, height))
-            poses.append(a.position(width, height))
-            sizes.append(a.sizes())
-            urls.append(a.reg_type.url)
-            if a.is_capital_area:
-                types.append(1)
-            else:
-                types.append(0)
-
-
-def fill_game_map(curr_map, map_id, player, his_enemy):
-    for obj in Region.objects.all():
-        if obj.map_id == map_id:
-            curr_map.append(obj)
-            curr_map[-1].owner_id = -1
-    curr_map[0].is_capital_area = curr_map[-1].is_capital_area = True
-    curr_map[0].owner_id = player
-    curr_map[-1].owner_id = his_enemy

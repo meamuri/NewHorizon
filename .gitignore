@@ -4,7 +4,6 @@
 
 *.egg-info
 *.pot
-*.py[co]
 .tox/
 __pycache__
 MANIFEST
@@ -16,9 +15,8 @@ tests/coverage_html/
 tests/.coverage
 build/
 tests/report/
-HorizonBackEnd/__pycache__
-HorizonQuiz/__pycache__
 .idea
 db.sqlite3
 Plan
 Plan/
+Будет удалено HorizonQuiz/push_connection/
