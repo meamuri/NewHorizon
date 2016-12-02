@@ -12,14 +12,45 @@ games = dict()       # game_id ---> game
 # current logic: session_key -> game -> whose_step -> game_turn
 
 TURN_STATUS = {
-    'player_wait': 0,
+    # Block 1. Game.Status for player
+    # эти статусы проверяются гейм центром первыми
+    # и либо сразу позволяют направить к контроллеру,
+    # либо показывают, что можно обратиться для уточнениям
+    # к статусам следующиего блока
+
+    'player_wait_step': 0,
     'player_can_attack': 1,
+
+    'fight_in_progress': 30,
+    'finished': 31,
+
+    'check_enum_quest': 20,
+    'check_accuracy_question': 21,
+
+    # Block 2. Request session status
+    # статусы ниже присваваются единожды на каждом раунде, когда
+    # игрок, чей сейчас ход, впервые обращается в геймцентр, имея стутс 'can attack'
+
+    'attack_neutral': 40,
+    'save_neutral': 41,
+
+    'attack_enemy': 45,
+    'defence_area': 46,
+
+    'attack_capital': 50,
+    'save_capital': 51,
+
+    # Block 3. Game.Round state
+    # Каждый раунд проходит в несколько этапов,
+    # Состояние раунда необходимо для работы
+    # attack area и для котроля, какой вопрос выдать следующим
+    # просматривается в "attack_area", меняется в этой функции и в fight result
 
     'get_me_enum_question': 10,
     'get_me_accuracy_question': 11,
 
-    'check_enum_quest': 20,
-    'check_enum': 21
+    'taken_true_answer': 60,
+    'taken_false_answer': 61,
 }
 
 
@@ -40,7 +71,12 @@ class Game:
                         0, 0, 0, 2]
         self.status_for_player = {
             self.player_comes_now: TURN_STATUS['player_can_attack'],
-            self.player_has_waited: TURN_STATUS['player_wait']
+            self.player_has_waited: TURN_STATUS['player_wait_step'],
+        }
+        self.round_state = {
+            'step': 1,
+            self.player_comes_now: TURN_STATUS['get_me_enum_question'],
+            self.player_has_waited: TURN_STATUS['get_me_enum_question'],
         }
         self.whose_step = player_who_comes_now
 
