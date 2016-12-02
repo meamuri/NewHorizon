@@ -19,5 +19,4 @@ def func_tornado(request):
     app = make_app()
     app.listen(8889)
     tornado.ioloop.IOLoop.current().start()
-
     return JsonResponse({'hello': 'world'})
