@@ -125,7 +125,7 @@ def init_round(the_game, area_id, player_key, his_enemy):
 
     if area_id == 0 or area_id == len(the_game.regions) - 1:
         the_game.round_status[player_key] = TURN_STATUS['attack_enemy']
-        the_game.round_status[player_key] = TURN_STATUS['sa']
+        the_game.round_status[player_key] = TURN_STATUS['defence_against_enemy']
     else:
         the_game.round_status[player_key] = TURN_STATUS['attack_enemy']
         the_game.round_status[player_key] = TURN_STATUS['attack_enemy']

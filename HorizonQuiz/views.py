@@ -90,12 +90,14 @@ def game_center(request, num=1):
                            player_key=player_key,
                            his_enemy=enemy_of_player,
                            the_game=the_game)
-        return JsonResponse(res)
+        # res = resume_round(res, player_key, enemy_of_player)
+        return res
 
     if the_game.status_for_player[player_key] == game_logic.TURN_STATUS['player_can_attack']:
         check = game_logic.init_round(the_game, num, player_key, enemy_of_player)
         if 'error' in check:
             return JsonResponse(check)
+        the_game.status_for_player[player_key] = game_logic.TURN_STATUS['fight_in_progress']
 
     return attack_area(request=request,
                        player_key=player_key,
@@ -106,42 +108,30 @@ def game_center(request, num=1):
 def attack_area(request, player_key, his_enemy, the_game):
     if the_game.round_state[player_key] == game_logic.TURN_STATUS['get_me_enum_question']:
         res = get_enum_question(request)
+        the_game.status_for_player[player_key] = game_logic.TURN_STATUS['check_enum_quest']
+        the_game.status_for_player[his_enemy] = game_logic.TURN_STATUS['get_me_enum_question']
     else:
         res = get_accuracy_question(request)
-    # надо еще поменять статусы игры!
+        the_game.status_for_player[player_key] = game_logic.TURN_STATUS['check_accuracy_question']
+        the_game.status_for_player[his_enemy] = game_logic.TURN_STATUS['get_me_accuracy_question']
     return res
 
 
 def fight_result(request, user_answer, player_key, his_enemy, the_game):
     if the_game.round_state[player_key] == game_logic.TURN_STATUS['check_enum_quest']:
         res_obj = get_enum_answer(request, user_answer)
+        the_game.round_state[player_key] = game_logic.TURN_STATUS['player_wait_step']
+        the_game.round_state[his_enemy] = game_logic.TURN_STATUS['get_me_accuracy_question_question']
     else:
         res_obj = get_accuracy_answer(request, user_answer)
-
-    # if 'error' in res_obj:
-    #     return res_obj
-
-#   if res_obj['its_true_answer?']:
-#       curr_map = game_logic.maps[current_game_id]
-#       curr_map[request.session['area_id']] = player_key
+        the_game.round_state[player_key] = game_logic.TURN_STATUS['player_wait_step']
+        the_game.round_state[his_enemy] = game_logic.TURN_STATUS['get_me_enum_question']
 
     return res_obj
-    # if game_logic.game_turn[player_key] == game_logic.TURN_OF_GAME['check_fight_result']:
-    #     res_obj = get_enum_answer(request, user_answer)
-    # else:
-    #     res_obj = get_accuracy_answer(request, user_answer)
-    #
-    # if 'error' in res_obj:
-    #     return res_obj
-    #
-    # if res_obj['its_true_answer?']:
-    #     curr_map = game_logic.maps[current_game_id]
-    #     curr_map[request.session['area_id']] = player_key
-    #
-    # game_logic.whose_step[current_game_id] = his_enemy
-    # game_logic.game_turn[player_key] = game_logic.TURN_OF_GAME['wait_his_opponent']
-    # game_logic.game_turn[his_enemy] = game_logic.TURN_OF_GAME['can_make_move']
-    # return res_obj
+
+
+def resume_round(result_obj, player_key, his_enemy):
+    return result_obj
 
 
 def check_pair(request):
