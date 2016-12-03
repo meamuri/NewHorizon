@@ -32,13 +32,13 @@ TURN_STATUS = {
     # игрок, чей сейчас ход, впервые обращается в геймцентр, имея стутс 'can attack'
 
     'attack_neutral': 40,
-    'save_neutral': 41,
+    'def_neutral': 41,  # мб не нужен
 
     'attack_enemy': 45,
-    'defence_area': 46,
+    'defence_against_enemy': 46,
 
     'attack_capital': 50,
-    'save_capital': 51,
+    'defence_capital': 51,
 
     # Block 3. Game.Round state
     # Каждый раунд проходит в несколько этапов,
@@ -78,6 +78,10 @@ class Game:
             self.player_comes_now: TURN_STATUS['get_me_enum_question'],
             self.player_has_waited: TURN_STATUS['get_me_enum_question'],
         }
+        self.round_status = {  # атака или защита нейтральной/ вражеской/ столичной территории
+            self.player_comes_now: TURN_STATUS['player_wait_step'],
+            self.player_has_waited: TURN_STATUS['player_wait_step'],
+        }
         self.whose_step = player_who_comes_now
 
     def key_to_player_id(self, key):
@@ -87,8 +91,23 @@ class Game:
             return 2
         return -1
 
-    def is_it_his_area(self, player_key, area):
-        return self.key_to_player_id(player_key) == self.regions[area]
+    def cmp_whose_this_area(self, area, player_key, his_enemy):
+        """
+
+        :param player_key:
+        :param area:
+        :param his_enemy:
+        :return:
+         0  - нейтральная
+         -1 - вражеская
+         1  - игрока
+        """
+        if self.key_to_player_id(player_key) == self.regions[area]:
+            return 1
+        elif self.key_to_player_id(his_enemy) == self.regions[area]:
+            return -1
+        else:
+            return 0
 
     def resume_round(self):
         self.whose_step = enemies[self.whose_step]
@@ -98,16 +117,25 @@ class Game:
         }
         self.round += 1
 
-# 1. бой за нейтральную
-# 2. бой за вражескую:
-#   2.1. Оба получили вопросы
-#   2.2. Оба ответ:
-#       2.2.1. Оба ответили неверно
-#       2.2.2. Атакующий ответил неверно
-#       2.2.3. Защищающийся ответил неверно
-#       2.2.4. Оба ответили верно:
-#           2.2.4.1. Вопрос на точность
-#
+
+def init_round(the_game, area_id, player_key, his_enemy):
+    whose = the_game.is_it_his_area(area=area_id, player_key=player_key, his_enemy=his_enemy)
+    if whose == 1:
+        return {'error': 'this is your area!'}
+
+    if whose == 0:
+        the_game.round_status[player_key] = TURN_STATUS['attack_neutral']
+        # the_game.round_status[player_key] = game_logic.TURN_STATUS['attack_neutral']
+
+    if area_id == 0 or area_id == len(the_game.regions) - 1:
+        the_game.round_status[player_key] = TURN_STATUS['attack_enemy']
+        the_game.round_status[player_key] = TURN_STATUS['sa']
+    else:
+        the_game.round_status[player_key] = TURN_STATUS['attack_enemy']
+        the_game.round_status[player_key] = TURN_STATUS['attack_enemy']
+
+    return {'ok': 'ok'}
+
 #
 # TURN_OF_GAME = {
 #     'can_make_move': 0,
