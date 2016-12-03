@@ -1,7 +1,3 @@
-# game_turn = dict()   # player_id ---> TURN_OF_GAME[k]
-# game_round = dict()  # game_id ---> step of game
-# whose_step = dict()  # game_id ---> player_id
-
 players = []         # players id
 enemies = dict()     # player_id ---> player_id (his enemy)
 game_ids = dict()    # player_id ---> game_id
@@ -119,7 +115,7 @@ class Game:
 
 
 def init_round(the_game, area_id, player_key, his_enemy):
-    whose = the_game.is_it_his_area(area=area_id, player_key=player_key, his_enemy=his_enemy)
+    whose = the_game.cmp_whose_this_area(area=area_id, player_key=player_key, his_enemy=his_enemy)
     if whose == 1:
         return {'error': 'this is your area!'}
 

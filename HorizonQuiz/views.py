@@ -36,11 +36,12 @@ def player_start_game(request, width=1, height=1, map_id=1):
     :param map_id:  id игрового поля
     :return:        Json, содержащий информацию об игровом поле
     """
+    if request.session.session_key:
+        return JsonResponse({'error': 'you are start game'})
+
+    request.session.save()
     regions = map_model.get_play_map_as_dict(int(map_id), int(width), int(height))
     game_map = JsonResponse(regions)
-
-    if not request.session.session_key:
-        request.session.create()
 
     player_key = request.session.session_key
     if len(game_logic.players) == 0:  # or game_logic.players[0] == player_key:
@@ -83,7 +84,7 @@ def game_center(request, num=1):
     num = int(num)  # из url параметр пришел строкой. Получаем число
 
     if the_game.status_for_player[player_key] == game_logic.TURN_STATUS['check_enum_quest'] or \
-            the_game.status_for_player[player_key] == game_logic.TURN_STATUS[player_key]:
+            the_game.status_for_player[player_key] == game_logic.TURN_STATUS['check_accuracy_question']:
         res = fight_result(request=request,
                            user_answer=num,
                            player_key=player_key,
@@ -96,11 +97,10 @@ def game_center(request, num=1):
         if 'error' in check:
             return JsonResponse(check)
 
-    res = attack_area(request=request,
-                      player_key=player_key,
-                      his_enemy=enemy_of_player,
-                      the_game=the_game)
-    return JsonResponse(res)
+    return attack_area(request=request,
+                       player_key=player_key,
+                       his_enemy=enemy_of_player,
+                       the_game=the_game)
 
 
 def attack_area(request, player_key, his_enemy, the_game):
