@@ -84,6 +84,7 @@ class Game:
             self.player_has_waited: TURN_STATUS['player_wait_step'],
         }
         self.round_status = {  # атака или защита нейтральной/ вражеской/ столичной территории
+            'area_id': -1,
             self.player_comes_now: TURN_STATUS['player_wait_step'],
             self.player_has_waited: TURN_STATUS['player_wait_step'],
         }
@@ -91,6 +92,10 @@ class Game:
             'step': 1,
             self.player_comes_now: TURN_STATUS['get_me_enum_question'],
             self.player_has_waited: TURN_STATUS['get_me_enum_question'],
+        }
+        self.score = {
+            self.player_comes_now: 0,
+            self.player_has_waited: 0,
         }
         self.step_in_round = 0
         self.whose_step = player_who_comes_now
@@ -104,14 +109,13 @@ class Game:
 
     def cmp_whose_this_area(self, area, player_key, his_enemy):
         """
-
         :param player_key:
         :param area:
         :param his_enemy:
         :return:
-         0  - нейтральная
+          0 - нейтральная
          -1 - вражеская
-         1  - игрока
+          1 - игрока
         """
         if self.key_to_player_id(player_key) == self.regions[area]:
             return 1
@@ -122,15 +126,40 @@ class Game:
 
     def resume_round(self):
         self.whose_step = enemies[self.whose_step]
-        self.status_for_player = {
-            self.whose_step: TURN_STATUS['player_can_attack'],
-            enemies[self.whose_step]: TURN_STATUS['player_wait']
-        }
+        self.status_for_player[self.whose_step] = TURN_STATUS['player_can_attack']
+        self.status_for_player[enemies[self.whose_step]] = TURN_STATUS['player_wait']
         self.round += 1
+        self.step_in_round = 1
 
+    def resume_part_of_round(self):
+        attacker = self.whose_step
+        defender = enemies[self.whose_step]
 
-def resume_round(the_game, player_key, his_enemy):
-    pass
+        if self.round_status[attacker] == TURN_STATUS['attack_neutral']:
+            self.resume_round()
+            if self.round_state[attacker] == TURN_STATUS['taken_true_answer']:
+                self.regions[self.round_status['area_id']] = self.key_to_player_id(attacker)
+            return
+
+        if self.status_for_player[attacker] == TURN_STATUS['taken_false_answer']:
+            self.resume_round()
+            return
+
+        if self.status_for_player[defender] == TURN_STATUS['taken_false_answer']:
+            self.resume_round()
+            self.score[attacker] += 100
+            return
+
+        if self.round_status[self.whose_step] == TURN_STATUS['attack_enemy'] or self.round_status[self.whose_step] == \
+                TURN_STATUS['attacked_capital'] and self.step_in_round == 3:
+            # оба ответили верно и закончился раунд
+            self.resume_round()
+
+        self.step_in_round += 1
+        self.status_for_player[attacker] == TURN_STATUS['get_me_enum_question']
+        self.status_for_player[defender] == TURN_STATUS['get_me_enum_question']
+        self.round_state[attacker] == TURN_STATUS['fight_in_progress']
+        self.round_state[defender] == TURN_STATUS['fight_in_progress']
 
 
 def init_round(the_game, area_id, player_key, his_enemy):
@@ -138,9 +167,9 @@ def init_round(the_game, area_id, player_key, his_enemy):
     if whose == 1:
         return {'error': 'this is your area!'}
 
-    the_game.step_in_round = 0
     res_obj = {'ok': 'ok'}
-
+    the_game.step_in_round = 0
+    the_game.round_status['area_id'] = area_id
     if whose == 0:
         the_game.round_status[player_key] = TURN_STATUS['attack_neutral']
         return res_obj
