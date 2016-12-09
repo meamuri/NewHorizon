@@ -8,6 +8,7 @@ games = dict()       # game_id ---> game
 # current logic: session_key -> game -> whose_step -> game_turn
 
 TURN_STATUS = {
+
     # Block 1. Game.Status for player
     # эти статусы проверяются гейм центром первыми
     # и либо сразу позволяют направить к контроллеру,
@@ -36,6 +37,8 @@ TURN_STATUS = {
     'attack_capital': 50,
     'defence_capital': 51,
 
+    'have_not_round_status': 55,
+
     # Block 3. Game.Round state
     # Каждый раунд проходит в несколько этапов,
     # Состояние раунда необходимо для работы
@@ -47,6 +50,17 @@ TURN_STATUS = {
 
     'taken_true_answer': 60,
     'taken_false_answer': 61,
+
+    'have_not_round_state': 65,
+
+    # Block 4. Game.GameStatus!!
+    # Теперь нет нужды хранит для каждого игрока, атакует он или защищает и какой тип территории
+    # игра сама знает, за что сейчас идет сражение, и смотрит уже только на состояние -- с каким типом вопроса
+    # работать и имеет ли право пользователь сейчас обращаться к гейм центру
+
+    'attacked_neutral_area': 70,
+    'attacked_area_of_player': 70,
+    'attacked_capital': 70,
 }
 
 
@@ -69,15 +83,16 @@ class Game:
             self.player_comes_now: TURN_STATUS['player_can_attack'],
             self.player_has_waited: TURN_STATUS['player_wait_step'],
         }
+        self.round_status = {  # атака или защита нейтральной/ вражеской/ столичной территории
+            self.player_comes_now: TURN_STATUS['player_wait_step'],
+            self.player_has_waited: TURN_STATUS['player_wait_step'],
+        }
         self.round_state = {
             'step': 1,
             self.player_comes_now: TURN_STATUS['get_me_enum_question'],
             self.player_has_waited: TURN_STATUS['get_me_enum_question'],
         }
-        self.round_status = {  # атака или защита нейтральной/ вражеской/ столичной территории
-            self.player_comes_now: TURN_STATUS['player_wait_step'],
-            self.player_has_waited: TURN_STATUS['player_wait_step'],
-        }
+        self.step_in_round = 0
         self.whose_step = player_who_comes_now
 
     def key_to_player_id(self, key):
@@ -114,23 +129,34 @@ class Game:
         self.round += 1
 
 
+def resume_round(the_game, player_key, his_enemy):
+    pass
+
+
 def init_round(the_game, area_id, player_key, his_enemy):
     whose = the_game.cmp_whose_this_area(area=area_id, player_key=player_key, his_enemy=his_enemy)
     if whose == 1:
         return {'error': 'this is your area!'}
 
+    the_game.step_in_round = 0
+    res_obj = {'ok': 'ok'}
+
     if whose == 0:
         the_game.round_status[player_key] = TURN_STATUS['attack_neutral']
+        return res_obj
         # the_game.round_status[player_key] = game_logic.TURN_STATUS['attack_neutral']
 
     if area_id == 0 or area_id == len(the_game.regions) - 1:
-        the_game.round_status[player_key] = TURN_STATUS['attack_enemy']
-        the_game.round_status[player_key] = TURN_STATUS['defence_against_enemy']
+        the_game.round_status[player_key] = TURN_STATUS['attack_capital']
+        the_game.round_status[his_enemy] = TURN_STATUS['defence_capital']
     else:
         the_game.round_status[player_key] = TURN_STATUS['attack_enemy']
-        the_game.round_status[player_key] = TURN_STATUS['attack_enemy']
+        the_game.round_status[his_enemy] = TURN_STATUS['defence_against_enemy']
 
-    return {'ok': 'ok'}
+    the_game.round_state[player_key] = TURN_STATUS['get_me_enum_question']
+    the_game.round_state[his_enemy] = TURN_STATUS['get_me_enum_question']
+
+    return res_obj
 
 #
 # TURN_OF_GAME = {
