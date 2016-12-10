@@ -5,62 +5,41 @@ game_ids = dict()    # player_id ---> game_id
 maps = dict()        # game_id ---> regions
 games = dict()       # game_id ---> game
 
-# current logic: session_key -> game -> whose_step -> game_turn
 
 TURN_STATUS = {
-
     # Block 1. Game.Status for player
     # эти статусы проверяются гейм центром первыми
     # и либо сразу позволяют направить к контроллеру,
     # либо показывают, что можно обратиться для уточнениям
     # к статусам следующиего блока
-
     'player_wait_step': 0,
     'player_can_attack': 1,
 
-    'fight_in_progress': 30,
+    'fight_in_progress': 30,  # когда не нужно, чтобы уходил на ветку проверки
     'finished': 31,
 
     'check_enum_quest': 20,
     'check_accuracy_question': 21,
 
-    # Block 2. Request session status
-    # статусы ниже присваваются единожды на каждом раунде, когда
-    # игрок, чей сейчас ход, впервые обращается в геймцентр, имея стутс 'can attack'
-
-    'attack_neutral': 40,
-    'def_neutral': 41,  # мб не нужен
-
-    'attack_enemy': 45,
-    'defence_against_enemy': 46,
-
-    'attack_capital': 50,
-    'defence_capital': 51,
-
-    'have_not_round_status': 55,
+    # Block 2. Game.GameStatus
+    # Теперь нет нужды хранить для каждого игрока, атакует он или защищает и какой тип территории
+    # игра сама знает, за что сейчас идет сражение, и смотрит уже только на состояние -- с каким типом вопроса
+    # работать и имеет ли право пользователь сейчас обращаться к гейм центру
+    'attacked_neutral_area': 70,
+    'attacked_area_of_player': 71,
+    'attacked_capital': 72,
+    'no_status_yet': 75,
 
     # Block 3. Game.Round state
     # Каждый раунд проходит в несколько этапов,
     # Состояние раунда необходимо для работы
     # attack area и для котроля, какой вопрос выдать следующим
     # просматривается в "attack_area", меняется в этой функции и в fight result
-
     'get_me_enum_question': 10,
     'get_me_accuracy_question': 11,
 
     'taken_true_answer': 60,
     'taken_false_answer': 61,
-
-    'have_not_round_state': 65,
-
-    # Block 4. Game.GameStatus!!
-    # Теперь нет нужды хранит для каждого игрока, атакует он или защищает и какой тип территории
-    # игра сама знает, за что сейчас идет сражение, и смотрит уже только на состояние -- с каким типом вопроса
-    # работать и имеет ли право пользователь сейчас обращаться к гейм центру
-
-    'attacked_neutral_area': 70,
-    'attacked_area_of_player': 70,
-    'attacked_capital': 70,
 }
 
 
@@ -83,13 +62,11 @@ class Game:
             self.player_comes_now: TURN_STATUS['player_can_attack'],
             self.player_has_waited: TURN_STATUS['player_wait_step'],
         }
-        self.round_status = {  # атака или защита нейтральной/ вражеской/ столичной территории
-            'area_id': -1,
-            self.player_comes_now: TURN_STATUS['player_wait_step'],
-            self.player_has_waited: TURN_STATUS['player_wait_step'],
+        self.game_status = {
+            'what_was_attacked': TURN_STATUS['no_status_yet'],
+            'area_under_attack': -1,
         }
         self.round_state = {
-            'step': 1,
             self.player_comes_now: TURN_STATUS['get_me_enum_question'],
             self.player_has_waited: TURN_STATUS['get_me_enum_question'],
         }
@@ -127,39 +104,23 @@ class Game:
     def resume_round(self):
         self.whose_step = enemies[self.whose_step]
         self.status_for_player[self.whose_step] = TURN_STATUS['player_can_attack']
-        self.status_for_player[enemies[self.whose_step]] = TURN_STATUS['player_wait']
+        self.status_for_player[enemies[self.whose_step]] = TURN_STATUS['player_wait_step']
         self.round += 1
         self.step_in_round = 1
+
+    def reg_was_captured(self):
+        self.regions[self.game_status['area_under_attack']] = self.key_to_player_id(self.whose_step)
 
     def resume_part_of_round(self):
         attacker = self.whose_step
         defender = enemies[self.whose_step]
-
-        if self.round_status[attacker] == TURN_STATUS['attack_neutral']:
-            self.resume_round()
+        if self.game_status['what_was_attacked'] == TURN_STATUS['attacked_neutral_area']:
             if self.round_state[attacker] == TURN_STATUS['taken_true_answer']:
-                self.regions[self.round_status['area_id']] = self.key_to_player_id(attacker)
-            return
-
-        if self.status_for_player[attacker] == TURN_STATUS['taken_false_answer']:
+                self.reg_was_captured()
             self.resume_round()
             return
 
-        if self.status_for_player[defender] == TURN_STATUS['taken_false_answer']:
-            self.resume_round()
-            self.score[attacker] += 100
-            return
-
-        if self.round_status[self.whose_step] == TURN_STATUS['attack_enemy'] or self.round_status[self.whose_step] == \
-                TURN_STATUS['attacked_capital'] and self.step_in_round == 3:
-            # оба ответили верно и закончился раунд
-            self.resume_round()
-
-        self.step_in_round += 1
-        self.status_for_player[attacker] == TURN_STATUS['get_me_enum_question']
-        self.status_for_player[defender] == TURN_STATUS['get_me_enum_question']
-        self.round_state[attacker] == TURN_STATUS['fight_in_progress']
-        self.round_state[defender] == TURN_STATUS['fight_in_progress']
+        pvp_resume_logic(self, attacker, defender)
 
 
 def init_round(the_game, area_id, player_key, his_enemy):
@@ -168,42 +129,50 @@ def init_round(the_game, area_id, player_key, his_enemy):
         return {'error': 'this is your area!'}
 
     res_obj = {'ok': 'ok'}
-    the_game.step_in_round = 0
-    the_game.round_status['area_id'] = area_id
+    the_game.round += 1
+    the_game.step_in_round = 1
+    the_game.game_status['area_under_attack'] = area_id
     if whose == 0:
-        the_game.round_status[player_key] = TURN_STATUS['attack_neutral']
+        the_game.game_status['what_was_attacked'] = TURN_STATUS['attacked_neutral_area']
+        the_game.status_for_player[player_key] = TURN_STATUS['fight_in_progress']
+        the_game.status_for_player[his_enemy] = TURN_STATUS['player_wait_step']
         return res_obj
-        # the_game.round_status[player_key] = game_logic.TURN_STATUS['attack_neutral']
 
     if area_id == 0 or area_id == len(the_game.regions) - 1:
-        the_game.round_status[player_key] = TURN_STATUS['attack_capital']
-        the_game.round_status[his_enemy] = TURN_STATUS['defence_capital']
+        the_game.game_status['what_was_attacked'] = TURN_STATUS['attacked_capital']
     else:
-        the_game.round_status[player_key] = TURN_STATUS['attack_enemy']
-        the_game.round_status[his_enemy] = TURN_STATUS['defence_against_enemy']
+        the_game.game_status['what_was_attacked'] = TURN_STATUS['attacked_area_of_player']
 
+    the_game.status_for_player[player_key] = TURN_STATUS['fight_in_progress']
+    the_game.status_for_player[his_enemy] = TURN_STATUS['fight_in_progress']
     the_game.round_state[player_key] = TURN_STATUS['get_me_enum_question']
     the_game.round_state[his_enemy] = TURN_STATUS['get_me_enum_question']
 
     return res_obj
 
-#
-# TURN_OF_GAME = {
-#     'can_make_move': 0,
-#     'wait_his_opponent': 10,
-#
-#     'attack_some_area': 1,
-#     'attack_neutral_area': 7,
-#     'attack_enemy_area': 8,
-#
-#     'enemy_fight_too': 8,
-#     'enemy_attack_me!!!': 9,
-#     'accuracy_fight': 3,
-#
-#     'check_fight_result': 2,
-#     'check_accuracy': 4,
-#
-#     'round_is_over': 5,
-#     'finished': 6,
-# }
-#
+
+def pvp_resume_logic(the_game, attacker, defender):
+    if the_game.round_state[attacker] == TURN_STATUS['taken_false_answer']:
+        the_game.resume_round()
+        return
+
+    if the_game.round_state[defender] == TURN_STATUS['taken_false_answer']:
+        the_game.reg_was_captured()
+        the_game.resume_round()
+        return
+
+    # Если оба дали неверные ответы
+    if the_game.status_for_player[attacker] == TURN_STATUS['get_me_enum_question']:
+        # неверные ответы на обычный вопрос -- получаем вопрос на точность
+        the_game.status_for_player[attacker] == TURN_STATUS['get_me_accuracy_question']
+        the_game.status_for_player[defender] == TURN_STATUS['get_me_accuracy_question']
+    else:
+        if the_game.game_status['what_was_attacked'] == TURN_STATUS['attacked_area_of_player']:
+            the_game.resume_round()
+            return
+        if the_game.state_round == 3:
+            the_game.resume_round()
+        else:
+            the_game.round_state += 1
+            the_game.status_for_player[attacker] = TURN_STATUS['get_me_enum_question']
+            the_game.status_for_player[defender] = TURN_STATUS['get_me_enum_question']

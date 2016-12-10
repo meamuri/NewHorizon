@@ -96,7 +96,6 @@ def game_center(request, num=1):
         check = game_logic.init_round(the_game=the_game, area_id=num, player_key=player_key, his_enemy=enemy_of_player)
         if 'error' in check:
             return JsonResponse(check)
-        the_game.status_for_player[player_key] = game_logic.TURN_STATUS['fight_in_progress']
 
     return attack_area(request=request,
                        player_key=player_key,
@@ -105,30 +104,31 @@ def game_center(request, num=1):
 
 def attack_area(request, player_key, the_game):
     if the_game.round_state[player_key] == game_logic.TURN_STATUS['get_me_enum_question']:
-        res = get_enum_question(request)
         the_game.status_for_player[player_key] = game_logic.TURN_STATUS['check_enum_quest']
+        return get_enum_question(request)
     else:
-        res = get_accuracy_question(request)
         the_game.status_for_player[player_key] = game_logic.TURN_STATUS['check_accuracy_question']
-    return res
+        return get_accuracy_question(request)
 
 
 def fight_result(request, user_answer, player_key, his_enemy, the_game):
     if the_game.status_for_player[player_key] == game_logic.TURN_STATUS['check_enum_quest']:
-        res_obj = views_unit.user_want_take_answer(request, views_unit.WE_GET_ENUM_QUESTION, int(user_answer))
+        what_we_want = views_unit.WE_GET_ENUM_QUESTION
     else:
-        res_obj = views_unit.user_want_take_answer(request, views_unit.WE_GET_ACCURACY_QUESTION, int(user_answer))
+        what_we_want = views_unit.WE_GET_ACCURACY_QUESTION
+    res_obj = views_unit.user_want_take_answer(request, what_we_want, int(user_answer))
 
     if 'error' in res_obj:
         return res_obj
 
-    if res_obj['its_true_answer?']:
-        the_game.round_state[player_key] = game_logic.TURN_STATUS['taken_true_answer']
-    else:
-        the_game.round_state[player_key] = game_logic.TURN_STATUS['taken_false_answer']
+    answer = 'taken_'+str(res_obj['its_true_answer?']).lower()+'_answer'
+    the_game.round_state[player_key] = game_logic.TURN_STATUS[answer]
 
-    one = the_game.round_state[his_enemy] == game_logic.TURN_STATUS['taken_true_answer']
-    if one or the_game.round_state[his_enemy] == game_logic.TURN_STATUS['taken_true_answer']:
+    def answer_of_enemy(x):
+        return the_game.round_state[his_enemy] == game_logic.TURN_STATUS['taken_' + x + '_answer']
+
+    fight_for_neutral = the_game.game_status['what_was_attacked'] == game_logic.TURN_STATUS['attacked_neutral_area']
+    if fight_for_neutral or answer_of_enemy('true') or answer_of_enemy('false'):
         the_game.resume_part_of_round()  # resume step -> должна уметь делать игра!
 
     return res_obj
