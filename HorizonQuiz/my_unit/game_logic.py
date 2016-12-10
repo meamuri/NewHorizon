@@ -161,18 +161,29 @@ def pvp_resume_logic(the_game, attacker, defender):
         the_game.resume_round()
         return
 
-    # Если оба дали неверные ответы
-    if the_game.status_for_player[attacker] == TURN_STATUS['get_me_enum_question']:
-        # неверные ответы на обычный вопрос -- получаем вопрос на точность
-        the_game.status_for_player[attacker] == TURN_STATUS['get_me_accuracy_question']
-        the_game.status_for_player[defender] == TURN_STATUS['get_me_accuracy_question']
+    # Если оба дали верные ответы
+    if the_game.status_for_player[attacker] == TURN_STATUS['check_enum_quest']:
+        # верные ответы на обычный вопрос -- получаем вопрос на точность
+        the_game.round_state[attacker] = TURN_STATUS['get_me_accuracy_question']
+        the_game.round_state[defender] = TURN_STATUS['get_me_accuracy_question']
+
+        the_game.status_for_player[attacker] = TURN_STATUS['fight_in_progress']
+        the_game.status_for_player[defender] = TURN_STATUS['fight_in_progress']
+        return
+
+    # Здесь ситуация, когда неверно ответили оба на перечислимый вопрос
+    if the_game.game_status['what_was_attacked'] == TURN_STATUS['attacked_area_of_player']:
+        the_game.resume_round()
+        return
+
+    # Здесь ситуация, когда неверно ответили оба на вопрос на точность
+    # и это атака столицы
+    if the_game.state_round == 3:
+        the_game.resume_round()
     else:
-        if the_game.game_status['what_was_attacked'] == TURN_STATUS['attacked_area_of_player']:
-            the_game.resume_round()
-            return
-        if the_game.state_round == 3:
-            the_game.resume_round()
-        else:
-            the_game.round_state += 1
-            the_game.status_for_player[attacker] = TURN_STATUS['get_me_enum_question']
-            the_game.status_for_player[defender] = TURN_STATUS['get_me_enum_question']
+        the_game.round_state += 1
+        the_game.round_state[attacker] = TURN_STATUS['get_me_enum_question']
+        the_game.round_state[defender] = TURN_STATUS['get_me_enum_question']
+
+        the_game.status_for_player[attacker] = TURN_STATUS['fight_in_progress']
+        the_game.status_for_player[defender] = TURN_STATUS['fight_in_progress']
