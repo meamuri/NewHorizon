@@ -178,7 +178,7 @@ def pvp_resume_logic(the_game, attacker, defender):
 
     # Здесь ситуация, когда неверно ответили оба на вопрос на точность
     # и это атака столицы
-    if the_game.state_round == 3:
+    if the_game.step_in_round == 3:
         the_game.resume_round()
     else:
         the_game.round_state += 1
