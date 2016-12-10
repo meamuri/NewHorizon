@@ -134,5 +134,10 @@ def fight_result(request, user_answer, player_key, his_enemy, the_game):
     return res_obj
 
 
+def get_curr_map(request):
+    the_game = game_logic.games[game_logic.game_ids[request.session.session_key]]
+    return JsonResponse({'map': the_game.regions})
+
+
 def check_pair(request):
     return JsonResponse({'enemy': request.session.session_key in game_logic.game_ids})
