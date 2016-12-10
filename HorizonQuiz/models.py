@@ -11,7 +11,7 @@ class Question(models.Model):
     true_answer = models.IntegerField(default=1)
 
     def __str__(self):
-        return str(self.id) + ': ' + self.question_text
+        return 'id - ' + str(self.id) + '; ' + self.question_text + ' [' + str(self.true_answer) + ']'
 
     def serialize(self):
         return dict(id=self.id, image=self.image_url, text=self.question_text, answers=[
@@ -28,7 +28,7 @@ class AccuracyQuestion(models.Model):
     true_answer = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.question_text
+        return 'id - ' + str(self.id) + '; ' + self.question_text + ' [' + str(self.true_answer) + ']'
 
     def serialize(self):
         return dict(id=self.id, image=self.image_url, text=self.question_text)
