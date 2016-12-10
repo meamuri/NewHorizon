@@ -11,14 +11,14 @@ class Question(models.Model):
     true_answer = models.IntegerField(default=1)
 
     def __str__(self):
-        return self.question_text
+        return str(self.id) + ': ' + self.question_text
 
     def serialize(self):
         return dict(id=self.id, image=self.image_url, text=self.question_text, answers=[
             self.answer_1,
             self.answer_2,
             self.answer_3,
-            self.answer_4
+            self.answer_4,
         ])
 
 
