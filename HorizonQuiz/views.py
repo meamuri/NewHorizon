@@ -53,11 +53,12 @@ def player_start_game(request, width=1, height=1, map_id=1):
     :param map_id:  id игрового поля
     :return:        Json, содержащий информацию об игровом поле
     """
+
+    if request.session.session_key:
+        drop_old_session(request)
+
     regions = map_model.get_play_map_as_dict(int(map_id), int(width), int(height))
     game_map = JsonResponse(regions)
-    if request.session.session_key:
-        if not drop_old_session(request):
-            return JsonResponse(game_map)
 
     request.session.save()
     player_key = request.session.session_key
