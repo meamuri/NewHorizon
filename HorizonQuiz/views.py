@@ -67,6 +67,9 @@ def player_start_game(request, width=1, height=1, map_id=1):
         game_logic.players.append(player_key)
         return game_map
 
+    if game_logic.players[0] == player_key:
+        return game_map
+
     enemy = game_logic.players[0]  # за врага принимаем первого в очереди
     game_logic.players = game_logic.players[1:]  # и удаляем его из очереди
 
