@@ -25,6 +25,23 @@ def get_accuracy_answer(request, digit_of_answer):
     return JsonResponse(res)
 
 
+def clear_all_of_user(key):
+    del game_logic.enemies[key]
+    del game_logic.game_ids[key]
+
+
+def drop_old_session(request):
+    key = request.session.session_key
+    if game_logic.game_ids.get(key) is None:
+        return False
+
+    del game_logic.games[game_logic.game_ids[key]]
+    enemy = game_logic.enemies[key]
+    clear_all_of_user(key)
+    clear_all_of_user(enemy)
+    return True
+
+
 def player_start_game(request, width=1, height=1, map_id=1):
     """
     Инициализация игры пользователем.
@@ -36,13 +53,13 @@ def player_start_game(request, width=1, height=1, map_id=1):
     :param map_id:  id игрового поля
     :return:        Json, содержащий информацию об игровом поле
     """
-    if request.session.session_key:
-        return JsonResponse({'error': 'you are start game'})
-
-    request.session.save()
     regions = map_model.get_play_map_as_dict(int(map_id), int(width), int(height))
     game_map = JsonResponse(regions)
+    if request.session.session_key:
+        if not drop_old_session(request):
+            return JsonResponse(game_map)
 
+    request.session.save()
     player_key = request.session.session_key
     if len(game_logic.players) == 0:  # or game_logic.players[0] == player_key:
         # если новый игрок единственный, кто ожидающий игру, добавляем его в очередь
@@ -50,7 +67,7 @@ def player_start_game(request, width=1, height=1, map_id=1):
         return game_map
 
     enemy = game_logic.players[0]  # за врага принимаем первого в очереди
-    game_logic.queue_of_gamers = game_logic.players[1:]  # и удаляем его из очереди
+    game_logic.players = game_logic.players[1:]  # и удаляем его из очереди
 
     game_id = uuid.uuid1()  # случайную уникальную комбинацию принимаем за игровой id
     init_game(player_key, enemy, game_id, int(map_id))  # инициализация карты, соперников, стадии игры
