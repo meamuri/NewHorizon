@@ -3,6 +3,7 @@ from .my_unit import views_unit
 from django.http import JsonResponse
 from HorizonQuiz.my_unit import game_logic, map_model
 import uuid
+from push_notifications.models import APNSDevice, GCMDevice
 
 
 def get_enum_question(request):
